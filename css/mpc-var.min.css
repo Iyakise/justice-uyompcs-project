@@ -1,0 +1,26 @@
+:root {
+    --root-bg1--: url('http://localhost/mpc/asset/img/logo3.jpg');
+    --mpc-dark-mode-color--: #ffffff;
+    --mpc-dark-mode-bg--:#000000;
+    --mpc-dark-mode-shadow--: 0px 25px 35px rgba(189, 188, 188, 0.3);
+
+    /*Normal mode || default mode*/
+
+    --mpc-normal-mode-bg--: #dfe9f5;
+    --mpc-normal-mode-sidebar-bg--: #ffffff;
+    --mpc-normal-mode-sidebar-color--: #ffffff;
+    --mpc-normal-mode-shadow--: 0px 25px 35px rgba(0, 0, 0, 0.3);
+    --mpc-normal-mode-color--: rgb(226, 145, 24);
+    --mpc-normal-color--1-: rgb(148, 139, 150);
+    --mpc-small-shadow-- : 0px 2px 8px 2px rgba(0, 0, 0, 0.3);
+    --mpc-noti--color--: #ff0000;
+    --mpc-normal--maintenance--shadow: 0px 5px 30px 5px rgba(0, 0, 0, 0.4);
+    --mpc-normal-progress-uncheck--: #9c9c98;
+    --mpc-font-family-- : Tahoma, sans-serif;
+    --mpc-bg-no-conflict--:rgb(61, 57, 57);
+    --mpc-caret-color--: rgb(12, 209, 29);
+    --mpc-bg-color-dark-dashboard--: #5152545c;
+    --mpc-bg-color-two-dark-dashboard--: #706b6d;;
+    --mpc-bg-color--normal-dashboard--: #dfe9f5;
+    
+}

@@ -1,0 +1,70 @@
+*{
+    margin:0;
+    padding: 0;
+    box-sizing: border-box;
+}
+::selection{
+    background: rgb(245, 145, 24);
+    color: #ffffff;
+}
+.responsReturn{
+    background-image: url('/mpc/asset/img/icon-512X512.png');
+    background-position: center;
+    background-repeat: no-repeat;
+    background-clip: clip;
+    filter:contrast(10px);
+    height: 100vh;
+    max-height: 100%;
+}
+
+.responsReturn .table td{
+    font-weight: 600;
+    font-family: sans-serif;
+}
+
+.mpc-firePrinter{
+    display: block;
+    text-align: center;
+    margin: 10px auto;
+}
+
+.dboard-img{
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+}
+
+.mpc-justice-mandatory-fm{
+    /* padding: 10px 60px; */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: auto;
+    max-height: 100%;
+    flex-direction: column;
+}
+
+.mpc-justic-nominee{
+    width: 60%;
+    height: auto;
+    margin: 8px auto;
+}
+
+
+/*mpc-account-made start here*/
+.mpc-account-made{
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.mpc-account-made .accout-sec-one{
+    width: 48%;
+    height: auto;
+    margin: 10px 0 0 0;
+}
+caption{
+    font-weight: 800;
+    color: darkorange;
+}

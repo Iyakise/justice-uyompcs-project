@@ -1,0 +1,49 @@
+
+{
+    "name": "JUSTICE (UYO) Multi-purpose Cooperative Society",
+    "short_name": "JUSTICE (UYO) MPCS",
+    "start_url": "https://justiceuyompcs.com.ng/index.php",
+    "display": "standalone",
+    "description": "LOAN MANAGEMENT APP, ONLINE LOAN APP",
+    "background_color": "#e29118",
+    "theme_color": "#ffe1c4",
+    "orientation": "portrait-primary",
+    "icons": [
+            {
+                "src":"https://justiceuyompcs.com.ng/asset/img/icon-72X72.png",
+                "type": "image/png",
+                "sizes": "72X72"
+            },
+            {
+                "src":"https://justiceuyompcs.com.ng/asset/img/icon-96X96.png",
+                "type": "image/png",
+                "sizes": "96X96"
+            },
+            {
+                "src":"https://justiceuyompcs.com.ng/asset/img/icon-128X128.png",
+                "type": "image/png",
+                "sizes": "128X128"
+            },
+            {
+                "src":"https://justiceuyompcs.com.ng/asset/img/icon-152X152.png",
+                "type": "image/png",
+                "sizes": "152X152"
+            },
+            {
+                "src":"https://justiceuyompcs.com.ng/asset/img/icon-192X192.png",
+                "type": "image/png",
+                "sizes": "192X192"
+            },
+            {
+                "src":"https://justiceuyompcs.com.ng/asset/img/icon-384X384.png",
+                "type": "image/png",
+                "sizes": "384X384"
+            },
+            {
+                "src":"https://justiceuyompcs.com.ng/asset/img/icon-512X512.png",
+                "type": "image/png",
+                "sizes": "512X512"
+            }
+    ]       
+
+}
