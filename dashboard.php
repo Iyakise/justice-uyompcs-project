@@ -56,8 +56,18 @@
     <link rel="manifest" href="<?php echo __mpc_root__()?>manifest.json">
 	<script  type="application/javascript" src="<?php echo __mpc_root__()?>script/jquery.min.js"></script>
 	<script  type="application/javascript" src="<?php echo __mpc_root__()?>script/mpc-url.min.js"></script>
+	<link rel="stylesheet" type="text/css" href="<?php echo __mpc_root__()?>css/toastify.css">
+    <script src="<?php echo __mpc_root__()?>script/toastify.js" type="text/javascript"></script>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">	
     <!--script src="https://unpkg.com/typed.js@2.0.132/dist/typed.umd.js"></script-->
     <!--script src="https://cdn.jsdelivr.net/npm/chart.js"></script-->
+    <style>
+        *{
+            font-family: 'Montserrat', sans-serif !important;
+        }
+    </style>
 </head>
 <body class="dsb-body offlineState mpc-body-class mpc-popup session-expire anytime-pop">
     <!--mpc load start-->
@@ -121,7 +131,7 @@
                     <span class="title">Request Loan</span>
                 </a>
                 <span class="loanApproval">
-                    <?php echo __myLoanRequest($conn, $uidId, $uidPhone)?>
+                    0
                 </span>
             </li>
 
@@ -137,7 +147,29 @@
             </li>
         </ul>
     </div>
+
+    <!-- <script type="module" src="<?=__mpc_root__()?>/script/api.js"></script> -->
+    <script type="module">
+        import { getTotalLoanMembers, selector,showToast, trackLoanRequest } from "<?=__mpc_root__()?>/script/api.js";
+
+      const totalLoan4Member = await getTotalLoanMembers("<?=__mpc_root__()?>", "<?=$uidId?>", "<?=$uidPhone?>");
+      const loanApprovalElement = selector('.loanApproval');
+      if (loanApprovalElement) {
+          loanApprovalElement.textContent = totalLoan4Member.total_pending || 0;
+          if(totalLoan4Member.total_pending > 0){
+              loanApprovalElement.classList.add('fa-beat');
+          }
+      }
+
+
+    </script>
     <style type="text/css">
+    .loanApproval{
+        position: absolute !important;
+        top: 15px;
+        right: 20px;
+        padding: 15px;
+    }
     .__mpcnew_{
         width:20px;
         height: 20px;
@@ -315,6 +347,7 @@
     <!--script src="<?php //echo __mpc_root__()?>script/mpc-chart.min.js" type="text/javascript"></script-->	
     <script src="<?php echo __mpc_root__()?>script/bootstrap.min.js" type="text/javascript"></script>
     <script src="<?php echo __mpc_root__()?>script/mpc-mem-dboard.min.js" type="text/javascript"></script>
+    <!-- <script src="<?php echo __mpc_root__()?>script/toastify.js" type="text/javascript"></script>	 -->
     
 
 </body>

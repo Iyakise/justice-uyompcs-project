@@ -23,3 +23,9 @@ function __mpcConn__() {
 }
 
 	$conn = __mpcConn__();
+
+
+	// Database connection settings
+define('DB_DSN', 'mysql:host=localhost;dbname=justice;charset=utf8mb4'); // Replace 'xpertbrige' with your database name
+define('DB_USERNAME', 'root'); // Replace 'root' with your database username
+define('DB_PASSWORD', ''); // Replace with your database password with the one on the live server

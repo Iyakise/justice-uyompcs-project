@@ -1043,8 +1043,8 @@ function __mpc_data__($conn, $prev, $tbleCol, $tble, $branch, $selcol=''){
 			<!--<td><?php //echo $data[$col5]?></td>-->
 			<!--<td><?php //echo $data[$col6]?></td>-->
 			<td><?php echo $data[$col7]?></td>
-			<td><img src="<?php echo __mpc_root__().'asset/img/'. $data[$col8]?>" alt="member pics" srcset="<?php echo __mpc_root__().'asset/img/'. $data[$col8]?>" class="dboard-img"></td>
-			<td class="member-status"><?php echo $status?></td>
+			<!-- <td><img src="<?php echo __mpc_root__().'asset/img/'. $data[$col8]?>" alt="member pics" srcset="<?php echo __mpc_root__().'asset/img/'. $data[$col8]?>" class="dboard-img"></td>
+			<td class="member-status"><?php echo $status?></td> -->
 		</tr>
 
 		<?php

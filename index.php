@@ -140,23 +140,23 @@
 
             <div class="mpc-3-inOne shadow mpc-flex">
                 <div class="counter-wrap">
-                    <h2 class="count mpc-counter">700</h2>
-                    <h5>Monthly loan disburse</h5>
+                    <h2 class="count mpc-counter monthlloan">0</h2>
+                    <h5>Monthly loan disbursement</h5>
                 </div>
             </div>
 
             <div class="mpc-3-inOne shadow mpc-flex">
                 <div class="counter-wrap">
-                    <h2 class="count mpc-counter">160</h2>
-                    <h5>Group loan</h5>
+                    <h2 class=" mpc-counter"><span class="count total-members">0</span></h2>
+                    <h5>Members</h5>
 
                 </div>
             </div>
 
             <div class="mpc-3-inOne shadow mpc-flex">
                 <div class="counter-wrap">
-                    <h2 class="count mpc-counter">250</h2>
-                    <h5>Individual loan</h5>
+                    <h2 class="count mpc-counter special-requests">0</h2>
+                    <h5>Special Requests</h5>
 
                 </div>
             </div>
@@ -164,6 +164,30 @@
         </div>
     </section>
 
+
+<script type="module">
+    import {  getTotalMembersAndLoan, selector } from '<?php echo __mpc_root__()?>script/api.js';
+
+
+    const totalMembersElement = selector('.total-members');
+    const totalLoansElement = selector('.monthlloan');
+    const totalSpecialLoansElement = selector('.special-requests');
+    let data = await getTotalMembersAndLoan();
+
+    console.log(totalMembersElement, totalLoansElement, totalSpecialLoansElement);
+
+    if(data.status){
+        totalMembersElement.innerHTML = data.total_members;
+        totalLoansElement.innerHTML = data.total_loans;
+        totalSpecialLoansElement.innerHTML = data.total_special_loans;
+        // console.log(data);
+    } else {
+        totalMembersElement.textContent = '0';
+        totalLoansElement.textContent = '0';
+        totalSpecialLoansElement.textContent = '0';
+    }
+
+</script>
     <section>
         <!--h3 class="mpc-happy-client">Happy customer</h3-->
 
@@ -220,19 +244,19 @@
 
    
     <script>
-        $(document).ready(function(){
-            $('.count').each(function(){
-                $(this).prop('counter', 0).animate({
-                    counter: $(this).text()
-                }, {
-                    duration:60000,
-                    //easing: swing,
-                    step: function(now){
-                        $(this).text(Math.ceil(now));
-                    }
-                    });
-                });
-        })
+        // $(document).ready(function(){
+        //     $('.count').each(function(){
+        //         $(this).prop('counter', 0).animate({
+        //             counter: $(this).text()
+        //         }, {
+        //             duration:60000,
+        //             //easing: swing,
+        //             step: function(now){
+        //                 $(this).text(Math.ceil(now));
+        //             }
+        //             });
+        //         });
+        // })
         
         var img, txt, x, txtr;
         img = document.getElementsByClassName('testi-IMG');

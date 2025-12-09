@@ -763,13 +763,14 @@ __mpc_collectSheet__($conn, $type, $month);
                         }else {
                             if($_GET['action'] == 'dashboard') {
                                 ?>
+
                                 
                                 <i class="mpc-admMsg">Dashboard</i><br><br>
                                 <hr class="mpcHr">
                                 <div class="dash-board-data">
                                     <div class="mpc-db-one dsh-board-light-mode shadow" title="Active loan">
                                         <div class="part1">
-                                            <span class="totalNum"><?php echo __mpcTotalCounter($conn, 'active loan')?></span>
+                                            <span class="totalNum activeLoans"></span>
                                             <i class="view">Active</i>
                                         </div>
 
@@ -779,7 +780,7 @@ __mpc_collectSheet__($conn, $type, $month);
                                     </div>
                                     <div class="mpc-db-one dsh-board-light-mode shadow" title="Loan Request">
                                         <div class="part1">
-                                            <span class="totalNum" title="loan transaction this month"><?php echo __mpcTotalCounter($conn, 'loan')?></span>
+                                            <span class="totalNum loanRequests" title="loan transaction this month"><?php echo __mpcTotalCounter($conn, 'loan')?></span>
                                             <i class="view">Loan</i>
                                             
                                         </div>
@@ -790,7 +791,7 @@ __mpc_collectSheet__($conn, $type, $month);
                                     </div>
                                     <div class="mpc-db-one dsh-board-light-mode shadow" title="deposit transaction">
                                         <div class="part1" >
-                                            <span class="totalNum" title="deposit transaction this month"><?php __mpcTotalCounter($conn, 'deposit')?></span>
+                                            <span class="totalNum depositTotal" title="deposit transaction this month"></span>
                                             <i class="view">Deposit</i>
                                             
                                         </div>
@@ -811,6 +812,64 @@ __mpc_collectSheet__($conn, $type, $month);
                                         </div>
                                     </div>
 
+<script type="module">
+    import { getCountDeposit, newPopup, fetchDataPost, showToast, selector, getCountAllLoanRequests} from "../../script/api.js";
+
+    const totDep = await getCountDeposit();
+    const tpl    = await getCountAllLoanRequests();
+    let activeLoan, loanReqCount;
+    activeLoan = selector('.activeLoans');
+    loanReqCount = selector('.loanRequests');
+    if(totDep.status !== "success"){
+        showToast('Failed to load deposit count', 'error', 3000);
+    }else{
+        selector('.depositTotal').innerText = totDep.data.total_unique_members.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
+
+    if(tpl.status !== "success"){
+        showToast('Failed to load loan request count', 'error', 3000);
+    }else{
+     activeLoan.innerText = tpl.data.active_loans.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+     loanReqCount.innerText = tpl.data.total_loans.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
+    // $('.depositTotal').innerText = totDep.data.total_deposit_transactions.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+
+console.log(tpl);
+    //open chart js here
+const ctx = document.querySelector('.deposit-canvass');
+
+new Chart(ctx, {
+    type: 'polarArea',
+    data: {
+        labels: ['Loan', 'Deposit', 'Active Loan'],
+        datasets: [{
+            label: 'Activities 2023',
+            data: [
+                tpl?.data?.total_loans ?? 10,
+                totDep?.data?.total_unique_members ?? 0,
+                tpl?.data?.active_loans ?? 0
+            ],
+            backgroundColor: [
+                'rgba(244, 149, 236, 1)',
+                'rgb(255, 159, 64)',
+                'rgb(255, 205, 86)'
+            ],
+            borderColor: [
+                'rgb(255, 99, 132)',
+                'rgb(255, 159, 64)',
+                'rgb(255, 205, 86)'
+            ],
+            borderWidth: 1
+        }]
+    },
+    options: {
+        responsive: true
+    }
+});
+
+
+
+</script>
 <script>
     var totalCompanyEarning, allEarnings, moneyEarn;
         totalCompanyEarning = document.querySelector('.totalCompanyEarnings').innerText; //getting company earnings
@@ -818,7 +877,7 @@ __mpc_collectSheet__($conn, $type, $month);
 
         moneyEarn = document.querySelector('.totalCompanyEarnings').innerHTML = allEarnings;
 
-
+    //fetch deposit count from server
 </script>                                    
 
                                     
@@ -826,7 +885,7 @@ __mpc_collectSheet__($conn, $type, $month);
                                 
                                     <div class="mpc-earn-graph-cnt">
                                         <div class="graph-30 dsh-board-light-mode shadow">
-                                            <canvas class="deposit-canvas" style="width:100%;height:fit-content;"></canvas>
+                                            <canvas class="deposit-canvass" style="width:100%;height:fit-content;"></canvas>
 
                                         </div>
                                         <div class="graph70 dsh-board-light-mode shadow">
@@ -1328,276 +1387,336 @@ if(prev !== 2 /*&& staffId !== 1*/){
     <i class="mpc-admMsg">Create new Loan</i><br><br>
         <hr class="mpcHr">
 
-        <div class="mpc-create-loan">
-            <div class="createLoanInput1 ">
-                <!--paste start here-->
-                <div class="mpc-responsive mpc-toggle-bg ">
-            <input type="search" class="searchClient setStyle mpc-disabled" placeholder="Search Member.">
-            <select class="Queryparam adm-select mpc-disabled" title="SEARCH PARAMETER">
-                <option value="">----</option>
-                <option value="Phone">Phone</option>
-                <option value="Reg_no">Account No.</option>
-                <option value="Email">Email</option>
-            </select>
-        </div>
+        <div class="mpc-create-loan dsh-board-light-mode shadow w-100">
+            <div class="card shadow-sm mt-4">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Loan Requests</h5>
+                    <span class="badge bg-light text-dark" id="loan-count">0 Requests</span>
+                </div>
 
-        <div class="loan-mpc-start ">
-            <div class="loan-input-inner">
-                
-                <input type="text" class="setStyle lusrname createLoanInput mpc-disabled mpc-disabled" placeholder="Fullname">
-
-                <select class="LoanType adm-select searchClient loanType mpc-disabled mpc-disabled" title="<?php echo getSystemName($conn)[0]?> REGULAR LOAN INTEREST RATE">
-                    <option value="">----</option>
-                    <?php  __mpc_get_IntrestRate__($conn, 'options');?>
-                </select>
-
-                <input type="text" class="setStyle branch createLoanInput mpc-disabled" placeholder="BRANCH" title="BRANCH">
-        
-                <!--input type="text" class="setStyle group createLoanInput" placeholder="GROUP"-->
-                <input type="number" class="setStyle loanAmount createLoanInput mpc-disabled" placeholder="LOAN AMOUNT" title="LOAN AMOUNT">
-                <input type="number" placeholder="REPAYMENT MONTH" class="setStyle createLoanInput repayByMonth repaymentMonth mpc-marginTop-small mpc-disabled" title="ENTER LOAN TENURE E.G 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12">
-                
-            </div>
-        </div>
-
-        <hr class="mpcHr">
-        
-        <div class="mpc-load-mpc table-responsive load-loan-user-rtn">
-            <span class="rtnMstg"></span>
-        <table class="table table-bordered createAccount border-dark CreateLoanColor Rtn-data-4rmQuery">
-            <thead class="">
-                <tr>
-                    <th>#</th>
-                    <th>Name</th>
-                    <th>Phone</th>
-                    <th>Religion</th>
-                    <th>Occupation</th>
-                    <th>Reg. No</th>
-                    <th>Group</th>
-                    <th>profile</th>
-                    
-                </tr>
-            </thead>
-            <?php  __load_mpc_members(__mpcConn__());?>
-
-            </table>
-        </div>
-                <!--paste end here iyakise Raphael etim pls call +2349069053009, +2348121369607-->
-            </div>
-
-            <div class="createLoanInput2">
-                <div class="mpc-outloan-calc table-responsive">
-                    <table class="table table-bordered border-dark">
-                        <thead>
-                            <tr>
-                                <th>Data</th>
-                                <th>Value</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>Interest type</td>
-                                <td class="IntType">0%</td>
-                            </tr>
-                            <tr>
-                                <td>B. Amount</td>
-                                <td class="BAmount">&#8358; 0</td>
-                            </tr>
-                            <tr>
-                                <td>Comp. Interest</td>
-                                <td class="int">
-                                    &#8358; <span class="CompInt">0</span>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Monthly Repay</td>
-                                <td class="rp">
-                                    &#8358; <span class="MRepay">0</span>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="BorrowerByName" colspan="2"></td>
-                            </tr>
-
-                            <tr>
-                                <td class="GrandTotald" colspan="2">
-                                    Total:&#8358; <span class="GrandTotal"></span>
-                                </td>
-                            </tr>
-
-                        </tbody>
-
-                        <tfoot>
-                            <tr>
-                                <td colspan="2"> <button class="mpc-btn mpc-btn-fullWidth createLoan mpc-disabled">Create Loan</button></td>
-                            </tr>
-                        </tfoot>
-                        
-                    </table>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>#</th>
+                                    <th>Member</th>
+                                    <th>Phone</th>
+                                    <th>Amount</th>
+                                    <th>Type</th>
+                                    <th>Duration</th>
+                                    <th>Status</th>
+                                    <th>Requested</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="loan-table-body">
+                                <!-- Rows injected by JS -->
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
+
         </div>
 
-<script>
-    var a, months, interest_rate, amount, company, payment, amountRtn, result, i, Yakise, BorrowerByName, k, l, m, calc;
-        a = document.querySelector('.repayByMonth');
-        a.addEventListener('input', function(){
-            months = this.value; //loan tenure data, loan month
-            interest_rate = document.querySelector('.LoanType').value; //INTEREST RATE
-            amount = document.querySelector('.loanAmount').value; //BORROWED AMOUNT  
-            company = document.querySelector('.CompInt'); //COMPANY INTEREST
-            amountRtn = document.querySelector('.BAmount'); //MONTHLY RETURN
-            result = document.querySelector('.MRepay'); //DISPLAY REPAYMENT TYPE TO ADMIN
-            Yakise = document.querySelector('.rtnMstg'); //return message to admin
-            i = document.querySelector('.lusrname').value; //admin is creating loan for this user/member with this name
-            k = document.querySelector('.IntType'); //interest rate charge type
-            l = document.querySelector('.branch').value; //interest rate charge type
-            m = document.querySelector('.GrandTotal'); //SYSTEM WILL RETURN GRAND TOTAL HERE
-            BorrowerByName = document.querySelector('.BorrowerByName'); //return message to admin
-
-               // amount = inp1.value;
-             //   interest_rate = inp2.value;
-               // months = inp3.value;
-               // result.classList.remove('err');
-                //result.classList.add('succ');
-            if(months !== '' && interest_rate !== '' && amount !== ''){
-
-                if(i == ''){
-                    Yakise.innerHTML == 'Click or search member to create loan...';
-                    Yakise.classList.add('to-red-color');
-                    __clearoutMpc('mpc-admin-ds-notify', 3000);
-                   // alert('me time')
-                }else {
-
-                    interest = (amount * (interest_rate * .01)) / months; //company interest
-
-                   // calc = interest * months + amount;
-                  //  alert(calc)
-                    var chkInterest, totalAmount;
-                    chkInterest = interest;
-                    totalAmount = amount;
-                    payment = ((amount / months) + interest).toFixed(2); // payment
-
-                    payment = payment.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-                    interest = interest.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-                    amount = amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-
-                    company.innerHTML = chkInterest.toFixed(2);
-                    result.innerHTML = payment;
-                    amountRtn.innerHTML = '&#8358; ' + amount;
-                    k.innerHTML = interest_rate + '%';
-
-                    calc = parseFloat(chkInterest) * parseFloat(months) + parseFloat(totalAmount);
-
-                    m.innerHTML = calc;
-                    BorrowerByName.innerHTML = "<span class=\"HighLight loanee-name\">" + i + "</span>, will be returning a monthly payment of <span class=\"HighLight\">'&#8358;" + payment + "'</span> to "+ __mpc_companyName__() + ", <span class=\"HighLight\">" +l +"</span> branch, for the total of <span class=\"HighLight\">" + months + " month(s)</span> to complete the borrowed amount of <span class=\"HighLight\">'&#8358;" + amount + "</span>";
-                }
-            }
-        })
-
+<script type="module">
+   
+import { getAllLoanRequests, selector, selectorAll, newPopup, getSingleLoanRequest, approveLoanRequest,showToast, rejectLoanRequest  } from "../../script/api.js";
+const totalLoan = await getAllLoanRequests();
 /**CRATE LOAN FOR MEMBER START HERE
  * MEMBER LOAN WILL BE CREATE HERE
  * 
  */
-var loanCreateButton, item1;
 
-    loanCreateButton = document.querySelector('.createLoan');
-    loanCreateButton.addEventListener('click', function(){
-        var val1, val2, val3, val4, phone, memId, xhr, intrestType, borrowerBranch, borrowerName, borrowedAmount, runningMonth, loanCreator, mpcRrtn;
-        val1 = document.querySelector('.lusrname');
-        phone = val1.getAttribute('mpc-b-phone'); //loan collector phone
-        memId = val1.getAttribute('mpc-b-id'); //loan collector id
-        intrestType = document.querySelector('.loanType'); //loan type
-        borrowerBranch = document.querySelector('.branch'); //borrower is from which branch
-        borrowerName = val1; //bor rower by name
-        borrowedAmount = document.querySelector('.loanAmount'); // loan ammount
-        runningMonth = document.querySelector('.repaymentMonth'); //loan running month
-        loanCreator = document.querySelector('.adm-prev').getAttribute('mpc-admId'); //who create this loan
-        mpcRrtn = document.querySelector('.mpc-admin-ds-notify'); //message write to admin here
-        val2 = document.querySelector('.CompInt').innerText; //company interest everyMonth
-        val3 = document.querySelector('.MRepay').innerText; //LOAN MONTHLY REPAYMENT
-        val4 = document.querySelector('.GrandTotal').innerText; //LOAN TOTAL REPAYMENT FEE
+// console.log(totalLoan);
+let showTotalReq = selector('#loan-count');
+let tbody        = selector('#loan-table-body');
+    if(totalLoan.status === 'success'){
+        showTotalReq.textContent = `${totalLoan.total} Requests`;
+
+        let rows = '';
+        totalLoan.loans.forEach((loan, index) => {
+            rows += `
+                <tr>
+                    <td>${index + 1}</td>
+                    <td>${loan.member_name} (ID: ${loan.member_id})</td>
+                    <td>${loan.members_phone}</td>
+                    <td>&#8358; ${Number(loan.loan_amount).toLocaleString()}</td>
+                    <td>${loan.loan_type}</td>
+                    <td>${loan.duration_months ? loan.duration_months + ' months' : 'N/A'}</td>
+                    <td>${loan.status}</td>
+                    <td>${new Date(loan.created_at).toLocaleDateString()}</td>
+                    <td>
+                        <button class="mpc-btn approve-loan-btn more-info" user-name="${loan.member_name}" data-loan-id="${loan.tracking_code}">View</button>
+                        <!--<button class="mpc-btn reject-loan-btn" user-name="${loan.member_name}" data-loan-id="${loan.tracking_code}">Reject</button>-->
+                    </td>
+                </tr>
+            `;
+           
+
+        });
+        tbody.innerHTML = rows;
+    }
 
 
-        if(borrowerName.value === ''){
-            mpcRrtn.innerHTML = 'Add borrower!';
-            borrowerName.style.border = '1.5px solid #ff0000';
-            mpcRrtn.classList.add('to-red-color');
+ //loan more info invoker btn
+    let moreInfo = selectorAll('.more-info');
 
-        }else if(intrestType.value === ''){
-            mpcRrtn.innerHTML = 'Select rate type!';
-            mpcRrtn.classList.add('to-red-color');
+moreInfo.forEach(button => {
+    button.addEventListener('click', async function(){
+        let loanId = this.getAttribute('data-loan-id');
+        let user = this.getAttribute('user-name');
+        //when button is clicked scroll back to top
+        window.scrollTo({top: 0, behavior: 'smooth'});
 
-            borrowerName.style.border = 'none';
-            intrestType.style.border = '1.5px solid red';
+        let style = {
+            width:'60%',
+            height:'80vh',
+            top:'50px',
+            background:'#fff',
+            borderRadius:'8px',
+            boxShadow:'0 0 10px rgba(0,0,0,0.3)',
+            padding:'20px',
+        };
 
-        }else if(borrowerBranch.value === ''){
-            mpcRrtn.innerHTML = 'Invalid borrower Branch!';
-            mpcRrtn.classList.add('to-red-color');
+        newPopup(document.body, style, async function(){
+            // duration_months
+            let req = await getSingleLoanRequest(loanId);
+            let dwrap = document.querySelector('.popContentWrap');
+            // Add modal HTML
+            dwrap.innerHTML = `
+                
+                <h2 class="loan-header">${user} Loan Transaction Information</h2>
 
-            intrestType.style.border = 'none';
-            borrowerBranch.style.border = '1.5px solid red';
-        }else if(borrowedAmount.value === ''){
-            mpcRrtn.innerHTML = 'Invalid Loan Amount!';
-            mpcRrtn.classList.add('to-red-color');
+                <div class="loan-details-box">
 
-            borrowerBranch.style.border = 'none';
-            borrowedAmount.style.border = '1.5px solid red';
+                    <div class="loan-section">
+                        <h3>Member Information</h3>
+                        <div class="loan-row">
+                            <p><strong>Member Name:</strong> ${user}</p>
+                            <p><strong>Phone:</strong> ${req.data.members_phone}</p>
+                            <p><strong>Tracking Code:</strong> ${req.data.tracking_code}</p>
+                        </div>
+                    </div>
 
-        }else if(runningMonth.value === ''){
-            mpcRrtn.innerHTML = 'Invalid Loan Running month!';
-            mpcRrtn.classList.add('to-red-color');
+                    <div class="loan-section">
+                        <h3>Loan Overview</h3>
+                        <div class="loan-row">
+                            <p><strong>Loan type:</strong> ${req.data.loan_type}</p>
+                            <p><strong>Loan Amount:</strong> ₦${Number(req.data.loan_amount).toLocaleString()}</p>
+                            <p><strong>Status:</strong> 
+                                <span class="loan-status ${req.data.status}">
+                                    ${req.data.status}
+                                </span>
+                            </p>
+                            <p><strong>Duration:</strong> ${req.data.loan_type === 'special' ? 'N/A' : req.data.duration_months + ' months'} </p>
+                        </div>
+                    </div>
 
-            borrowedAmount.style.border = 'none';
-            runningMonth.style.border = '1.5px solid red';
-        }else if(borrowerBranch.value === 'pending'){
-            mpcRrtn.innerHTML = borrowerName.value + ' is Not qualify to collect loan!';
-        }else {
+                    <div class="loan-section">
+                        <h3>Payment Breakdown</h3>
+                        <div class="loan-row">
+                            <p><strong>Total Payable:</strong> ${req.data.loan_type === 'special' ? 'N/A' : '₦' + Number(req.data.total_payable).toLocaleString()}</p>
+                            <p><strong>Repayment Frequency:</strong>${req.data.loan_type === 'special' ? 'N/A' : req.data.repayment_frequency}</p>
+                            <p><strong>Monthly Payment:</strong>${req.data.loan_type === 'special' ? 'N/A' : '₦' + Number(req.data.monthly_payment).toLocaleString()}</p>
+                            <p><strong>Due Date:</strong> ${req.data.loan_type === 'special' ? 'N/A' : req.data.due_date}</p>
+                        </div>
+                    </div>
 
-         var monthlyReturn = val3.replace(/['!@#$%^&*()_+}{"':|<>?,]/g, '');
+                    <div class="__xcx__ p-1 max-content loan-section">
+                        <!-- Additional sections can be added here -->
+                        <h3>Special Savings Information</h3>
+                        <p><strong>Special Savings Balance:</strong> ₦${Number(req?.special_savings?.balance).toLocaleString()}</p>
+                        <p><strong>Last Transaction:</strong> ₦${Number(req?.special_savings?.credit).toLocaleString()} on ${req?.special_savings?.date_time}</p>
+                    </div>
 
-            var Sendata = "PERM=LoanKEYpermPCs@Yakise&interestType="+intrestType.value + 
-            '&Bbranch=' +borrowerBranch.value +'&Lamount=' + borrowedAmount.value + 
-            '&LoanRun='+ runningMonth.value + '&Creator='+loanCreator+ '&borrowerId=' + memId + '&borrowerPhone=' + phone + 
-            '&MonthlyInt='+ val2 + '&MontlyRepay=' + monthlyReturn + '&TotalRepayment=' +val4;
-            xhr = new XMLHttpRequest();
-            xhr.open('POST', __mpc_uri__() + 'functions/mpc-ajax-action.php', true);
-            xhr.onreadystatechange = function(){
-                if(this.readyState == 4 && this.status == 200){
-                    if(this.response == 'LOAN CREATED'){
-                        mpcRrtn.innerHTML = 'Loan create successful for ' + borrowerName.value +', Now it pending Approval';
+                    <div class="loan-actions">
+                        <button class="reject-btn" data-trk-id="${req.data.tracking_code}" ${req.data.status == 'pending' ? '' : 'disabled'} id="reject-loan-btn">Reject</button>
+                        <button class="approve-btn" data-trk-id="${req.data.tracking_code}" ${req.data.status == 'pending' ? '' : 'disabled'} id="approve-loan-btn">Approve</button>
+                    </div>
 
-                        setTimeout(function(){
-                            window.location.reload();
-                        }, 3000)
-                    }else{
-                        mpcRrtn.innerHTML = this.response;
-                        console.log(this.status);
-                    }
-                }
-            }
-            xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-            xhr.send(Sendata);
-            
+                </div>
+
+<style>
+.loan-header {
+    font-size: 22px;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 3px solid #3f51b5;
+    color: #333;
+    font-weight: 600;
+}
+
+.loan-details-box {
+    background: #ffffff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    overflow-y: auto;
+    max-height: 65vh;
+}
+
+.loan-section {
+    margin-bottom: 25px;
+}
+
+.loan-section h3 {
+    font-size: 18px;
+    border-left: 4px solid #3f51b5;
+    padding-left: 10px;
+    margin-bottom: 15px;
+    font-weight: 600;
+    color: #222;
+}
+
+.loan-row p {
+    margin: 6px 0;
+    font-size: 15px;
+}
+
+.loan-status {
+    padding: 3px 10px;
+    border-radius: 6px;
+    font-weight: bold;
+    font-size: 13px;
+}
+
+/* STATUS COLORS */
+.loan-status.pending {
+    background: #ffeb3b;
+    color: #9e7b00;
+}
+.loan-status.approved {
+    background: #4caf50;
+    color: white;
+}
+.loan-status.rejected {
+    background: #f44336;
+    color: white;
+}
+
+/* BUTTONS */
+.loan-actions {
+    margin-top: 25px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.approve-btn, .reject-btn {
+    padding: 10px 25px;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.approve-btn {
+    background: #4caf50;
+    color: white;
+}
+
+.reject-btn {
+    background: #f44336;
+    color: white;
+}
+
+.approve-btn:hover {
+    background: #43a047;
+}
+
+.reject-btn:hover {
+    background: #d32f2f;
+}
+/*if button is disabled*/
+.loan-actions button:disabled {
+    background: #e0e0e0;
+    color: #9e9e9e;
+    cursor: not-allowed;
+}
+
+@media (max-width: 768px) {
+    .loan-details-box {
+        max-height: none;
+    }
+    .loan-header {
+        font-size: 20px;
+    }
+    .loan-section h3 {
+        font-size: 16px;
+    }
+    .loan-row p {
+        font-size: 14px;
+    }
+
+    .popContentWrap {
+        width: 90% !important;
+        height: auto !important;
+    }
+}
+</style>            
+
+            `;
+
+        //check if it not special
+        if(req.source !== 'special'){
+            //hide special savings section
+            let specialSection = document.querySelector('.__xcx__');
+                specialSection.style.display = 'none';
         }
 
 
-        
-    })
 
-//mpc-disabled if you are not secretary
-let previ = <?php echo $prev?>;
-let staffId = <?php echo $id?>;
 
-if(previ !== 2){
-    __mpc_disabled__('mpc-disabled', 'ADMIN'); ///disabled all the input here
-}
+        //approve request
+        let approveBtn = selector('.approve-btn');
+            approveBtn.addEventListener('click', async function(){
+                let trkId = this.getAttribute('data-trk-id');
+                let asside = "<?php echo $fn . ' ' . $ln?>";
+                this.disabled = true;
+                selector('.reject-btn').disabled = true;
+                this.textContent = 'Processing...';
+
+                let Approved = await approveLoanRequest(trkId, asside);
+
+                    if(Approved.status){
+                        showToast(Approved.message);
+                        selector('.closeData').click();
+                    }else{
+                        showToast(Approved.message);
+                    }
+
+                    // 
+                // console.log(Approved);
+
+            });
+
+        selector('.reject-btn').addEventListener('click', function(){
+
+            let trkId = this.getAttribute('data-trk-id');
+            let asside = "<?php echo $fn . ' ' . $ln?>";
+            this.disabled = true;
+            selector('.approve-btn').disabled = true;
+            this.textContent = 'Processing...';
+
+            //reject loan request function here
+            rejectLoanRequest(trkId, asside).then(response => {
+                if(response.status){
+                    showToast(response.message);
+                    selector('.closeData').click();
+                }else{
+                    showToast(response.message);
+                }
+            })
+        })
+    });
+});
+
+});
+
 </script>
                                         
-
-
-
-<script src="<?php echo __mpc_root__()?>script/creatLoan.mpc.min.js" async></script>
 
                                         <?php
                                         
@@ -1644,7 +1763,7 @@ if(previ !== 2){
                                                     </div>
 
                                                     <div class="mpc-set-in dsh-board-light-mode shadow">
-                                                        <i class="fas fa-hand-holding fa-2x"></i>
+                                                        <!-- <i class="fas fa-hand-holding fa-2x"></i> -->
                                                         <!--<a href="<?php //echo __mpc_root__()?>user/dashboard.php/?action=Settings&r=cBranch&rtn=settings" class="Setting-link">-->
                                                         <!--    Branch-->
                                                         <!--</a>-->
@@ -1665,13 +1784,13 @@ if(previ !== 2){
                                                         </a>
                                                     </div>
 
-                                                    <div class="mpc-set-in dsh-board-light-mode shadow">
+                                                    <!-- <div class="mpc-set-in dsh-board-light-mode shadow">
                                                         
                                                         <i class="fa-2x fas fa-crutch"></i>
-                                                        <a href="#" class="Setting-link">
+                                                        <a href="?action=verifyAction&actionId=338&t=member&r1=Settings&r2=createMember" class="Setting-link">
                                                             Delete
                                                         </a>
-                                                    </div>
+                                                    </div> -->
 
                                                     <div class="mpc-set-in dsh-board-light-mode shadow">
                                                         <i class="fa-2x fas fa-shipping-fast"></i>
@@ -2414,8 +2533,8 @@ if(/*previ !== 5 && */staffId !== 1){
                                         <!--<td>Group </td>-->
                                         <!--<td>Branch </td>-->
                                         <td>Staff ID No.</td>
-                                        <td>Profile</td>
-                                        <td>status</td>
+                                        <!-- <td>Profile</td>
+                                        <td>status</td> -->
                                     </tr>
                                     
                                         <?php
@@ -6067,118 +6186,540 @@ var popUpClose = document.querySelectorAll('.close-mpc-popup');
         outline: none;
         border: none;
     }
-    /*.approvedLoan{
-        color: green;
-    }*/
+
+ body {
+    background: #f5f6fa;
+    font-family: "Inter", sans-serif;
+}
+
+.members-container {
+    width: 95%;
+    max-width: 800px;
+    margin: 40px auto;
+}
+
+.members-container h2 {
+    font-size: 22px;
+    margin-bottom: 20px;
+    font-weight: 600;
+}
+
+/* Search Bar */
+.top-bar {
+    margin-bottom: 20px;
+}
+
+.top-bar input {
+    width: 100%;
+    padding: 12px 15px;
+    border-radius: 10px;
+    border: 1px solid #dcdcdc;
+    background: #fff;
+    font-size: 15px;
+}
+
+/* Member List */
+.member-list {
+    margin-top: 10px;
+}
+
+.member-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #fff;
+    padding: 15px;
+    border-radius: 14px;
+    margin-bottom: 12px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+    transition: transform .2s;
+}
+
+.member-row:hover {
+    transform: translateY(-3px);
+}
+
+/* Left Info */
+.info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #4f8df9, #6ab0ff);
+}
+
+.name {
+    font-size: 16px;
+    font-weight: 600;
+    margin: 0;
+}
+
+.meta {
+    margin: 0;
+    font-size: 13px;
+    color: #666;
+}
+
+/* Loan Info */
+.loan-info {
+    text-align: right;
+}
+
+.amount {
+    font-size: 16px;
+    font-weight: 700;
+    margin: 0;
+}
+
+/* Status badge */
+.badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    margin-top: 4px;
+}
+
+.badge.active {
+    background: #e8f3ff;
+    color: #3b82f6;
+}
+
+.badge.approved {
+    background: var(--bs-success);
+    color: #3b82f6;
+}
+
+.badge.rejected {
+    background: var(--bs-danger);
+    color: #3b82f6;
+}
+
+.badge.pending {
+    background: var(--bs-info);
+    color: #3b82f6;
+}
+
+.badge.completed {
+    background: #e6ffed;
+    color: #22c55e;
+}
+
+/* View Button */
+.view-btn {
+    padding: 10px 14px;
+    background: #4f8df9;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+@media (max-width:450px){
+    .loan-info{
+        display:none;
+    }
+}
 </style>
-<i class="mpc-admMsg">Approve loan</i><br><br>
+<i class="mpc-admMsg">Repayment Screen</i><br><br>
 <hr class="mpcHr">
     <div class="mpc-loan-activator" adm-uid="<?php echo $id?>">
-        <div class="mpc-dt">
-            <select class="adm-select LoanType activate-mpc-loan" title="LOAN TYPE">
-                <option value="">-----</option>
-                <option value="Regular">REGULAR LOAN</option>
-                <!-- <option value="Group">GROUP LOAN</option> -->
-                <option value="ONLINE">ONLINE LOAN REQUEST</option>
-            </select>
+        
+        <!-- 
 
-            <select class="adm-select LoanType load-mpc-loan-byGroup" title="GET BY GROUP">
-                <option value="">-----</option>
-                <?php 
-               // $prev = 1;
-                $whattoselect = ['group_id', 'group_name', 'group_branch'];
-                $tbl = 'mpc_available_group';
-                $howToReturn = 'options';
-                __mpcAll_availableGroup__($conn, $prev, $branch, $whattoselect, $tbl, $howToReturn, 0, 0);
-                ?>
-            </select>
-            <input type="text" placeholder="Tracking ID" class="setStyle LoanType createLoanInput trackingId">
-        </div>
 
-        <div class="activator-item">
-<!---loan item each--->
-        </div>
+    
+        -->
+        <div class="members-container">
+    <h2>Loan Members</h2>
+
+    <div class="top-bar">
+        <input type="text" placeholder="Search members...">
     </div>
-    <script>
 
+    <div class="member-list">
+
+        <div class="member-row">
+            <div class="info">
+                <div class="avatar"></div>
+                <div>
+                    <p class="name">John Doe</p>
+                    <p class="meta">Member ID: 10023</p>
+                </div>
+            </div>
+            <div class="loan-info">
+                <p class="amount">₦450,000</p>
+                <span class="badge active">Active Loan</span>
+            </div>
+            <button class="view-btn">View</button>
+        </div>
+
+        <div class="member-row">
+            <div class="info">
+                <div class="avatar"></div>
+                <div>
+                    <p class="name">Mary Johnson</p>
+                    <p class="meta">Member ID: 10024</p>
+                </div>
+            </div>
+            <div class="loan-info">
+                <p class="amount">₦120,000</p>
+                <span class="badge completed">Completed</span>
+            </div>
+            <button class="view-btn">View</button>
+        </div>
+
+        <div class="member-row">
+            <div class="info">
+                <div class="avatar"></div>
+                <div>
+                    <p class="name">Mary Johnson</p>
+                    <p class="meta">Member ID: 10024</p>
+                </div>
+            </div>
+            <div class="loan-info">
+                <p class="amount">₦120,000</p>
+                <span class="badge completed">Completed</span>
+            </div>
+            <button class="view-btn">View</button>
+        </div>
+
+        <div class="member-row">
+            <div class="info">
+                <div class="avatar"></div>
+                <div>
+                    <p class="name">Mary Johnson</p>
+                    <p class="meta">Member ID: 10024</p>
+                </div>
+            </div>
+            <div class="loan-info">
+                <p class="amount">₦120,000</p>
+                <span class="badge completed">Completed</span>
+            </div>
+            <button class="view-btn">View</button>
+        </div>
+
+        <div class="member-row">
+            <div class="info">
+                <div class="avatar"></div>
+                <div>
+                    <p class="name">Mary Johnson</p>
+                    <p class="meta">Member ID: 10024</p>
+                </div>
+            </div>
+            <div class="loan-info">
+                <p class="amount">₦120,000</p>
+                <span class="badge completed">Completed</span>
+            </div>
+            <button class="view-btn">View</button>
+        </div>
+
+        <div class="member-row">
+            <div class="info">
+                <div class="avatar"></div>
+                <div>
+                    <p class="name">Mary Johnson</p>
+                    <p class="meta">Member ID: 10024</p>
+                </div>
+            </div>
+            <div class="loan-info">
+                <p class="amount">₦120,000</p>
+                <span class="badge completed">Completed</span>
+            </div>
+            <button class="view-btn">View</button>
+        </div>
+
+    </div>
+</div>
+
+
+
+
+    </div>
+
+
+    </div>
+    <script type="module">
+
+        import * as api from '../../script/api.js';
     //mpc-disabled if you are not secretary
 let previ = <?php echo $prev?>;
 let staffId = <?php echo $id?>;
 
 
+    const loanMembers = await api.normalLoan();
+    let  list = api.selector('.member-list');
 
-        var activator = document.querySelector('.activate-mpc-loan');
-        var trackingId = document.querySelector('.trackingId');
-        var filterByGroup = document.querySelector('.load-mpc-loan-byGroup');
-            activator.addEventListener('change', function(){
-                let value, item1, rtndiv, xhr;
-                value = this.value;
-                rtndiv = document.querySelector('.activator-item');
-            if(this.value == 'ONLINE'){
-                trackingId.style.display = 'inline-block';
-                filterByGroup.style.display = 'none';
+        if(loanMembers.status !== "success"){
+            api.showToast('No loan member found');
+            // return;
+        }else{
 
-                trackLoanStart(); //tracking id inputer
-            }else{
-                trackingId.style.display = 'none';
-                filterByGroup.style.display = 'inline-block';
-            }
-            
-            if(value !== ''){
-                item1 = "PERM=pKYVest&qrySend="+value;
-                    xhr = new XMLHttpRequest();
-                    xhr.open('POST', __mpc_uri__() + 'functions/mpc-ajax-action.php', true);
-                    xhr.onreadystatechange = function(){
-                        if(this.readyState == 4 && this.status == 200){
-                            rtndiv.innerHTML = this.response;
+        list.innerHTML = '';
+        loanMembers.loans.forEach(loan => {
+            let lnWrap = document.createElement('div');
+                lnWrap.classList.add('member-row');
+                lnWrap.innerHTML = `
+                
+                <div class="info">
+                    <div class="avatar"></div>
+                    <div>
+                        <p class="name">${loan.member_name}</p>
+                        <p class="meta">Member ID: ${loan.member_id}</p>
+                    </div>
+                </div>
+                <div class="loan-info">
+                    <p class="amount">₦${loan.total_payable}</p>
+                    <span class="badge ${loan.status} text-dark">${loan.status}</span>
+                </div>
+                <button memb-name="${loan.member_name}" class="view-btn chkdsk-ln" tracking-id="${loan.tracking_code}">View</button>
+                
+                `;
+            list.appendChild(lnWrap);
+        })
 
-                            __mpcCountcomma__(); //add comma after every 100 
-                            __mpc_loan_approvalRequest(); //trying to call loan approval function
-                            __takeACtionToLoan();
+    }
+    // console.log(loanMembers);
+
+    //view loan details
+    let AllViewBtn = api.selectorAll('.chkdsk-ln');
+    AllViewBtn.forEach(btn => {
+        btn.addEventListener('click', async function(){
+            let trackingId = this.getAttribute('tracking-id');
+            let memberName = this.getAttribute('memb-name');
+            //fetch loan details here
+            //scroll to top of the page
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        //    api.showToast('Loading loan details, please wait...');
+            let style = {
+                width: '70%',
+                height: '80vh',
+                overflowY: 'auto'
+            };
+            api.newPopup('', style, async function() {
+                let currSingleLoan = await api.getSingleLoanRequest(trackingId);
+                console.log(currSingleLoan);
+                let popupWrap = api.selector('.popContentWrap');
+                    popupWrap.innerHTML = `
+ 
+<style>
+.repay-container {
+    width: 90%;
+    max-width: 480px;
+    margin: 40px auto;
+    background: #fff;
+    padding: 25px;
+    border-radius: 16px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+}
+
+.repay-container h2 {
+    font-size: 20px;
+    margin-bottom: 20px;
+    font-weight: 600;
+    color: #222;
+}
+
+/* Member Profile Box */
+.member-box {
+    display: flex;
+    align-items: center;
+    background: #f0f3f9;
+    padding: 15px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+}
+
+.avatar {
+    width: 55px;
+    height: 55px;
+    background: linear-gradient(135deg, #4f8df9, #6ab0ff);
+    border-radius: 50%;
+}
+
+.details {
+    margin-left: 15px;
+}
+
+.name {
+    font-size: 18px;
+    font-weight: 600;
+    color: #111;
+}
+
+.meta {
+    font-size: 14px;
+    color: #555;
+}
+
+/* Form Elements */
+.form-group {
+    margin-bottom: 18px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 500;
+    color: #333;
+}
+
+input, select, textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #dcdcdc;
+    border-radius: 10px;
+    font-size: 15px;
+    background: #fafafa;
+    transition: border .3s;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+    border-color: #4f8df9;
+    outline: none;
+}
+
+textarea {
+    height: 90px;
+    resize: none;
+}
+
+/* Buttons */
+.btn-row {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 25px;
+}
+
+.__sum__mandina:disabled{
+    background: #ccc !important;
+    cursor: not-allowed;
+}
+
+button {
+    padding: 12px 18px;
+    border: none;
+    border-radius: 10px;
+    font-size: 15px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.cancel {
+    background: #e1e1e1;
+    color: #333;
+}
+
+.submit {
+    background: #4f8df9;
+    color: #fff;
+}
+
+</style>
 
 
-                            if(previ !== 2 && previ !== 1){
-                                __mpc_disabled__('mpc-disabled', 'ADMIN, SUPER-ADMIN'); ///disabled all the input here
-                            }
-                        }   
-                    }
-                    xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-                    xhr.send(item1);
-                 }
-            })
+<div class="repay-container">
+            <h2>Record Member Repayment</h2>
 
-
-//BELOW IS TRYING TO FILTER BY GROUP NAME
-        var activatorGroup = document.querySelector('.load-mpc-loan-byGroup');
-            activatorGroup.addEventListener('change', function(){
-                let value, item1, rtndiv, xhr;
-                value = this.value;
-                rtndiv = document.querySelector('.activator-item');
-
-            //CHECK AND FIRE AJAX REQUEST ONLY THERE IS A VALID DATA VALUE
-            if(value !== ''){
-                    item1 = "PERM=groupLOANBYgROUP&grpSend="+value;
+            <div class="member-box">
+                <div class="avatar"></div>
+                <div class="details">
+                    <p class="name">${memberName}</p>
+                    <p class="meta">Member ID: 00${currSingleLoan.data.member_id}</p>
+                    <p class="meta">Loan: ₦${currSingleLoan.data.loan_amount}</p>
+                    <p class="meta">Loan paid: ₦${currSingleLoan.data.amount_paid}</p>
+                    <p class="meta">Monthly Repayment: ${currSingleLoan.data.monthly_payment}</p>
+                    <p class="meta">Frequency: ${currSingleLoan.data.repayment_frequency}</p>
                     
+                    <p class="meta">Total Payable: ₦${currSingleLoan.data.total_payable}</p>
+                    <p class="meta">Loan Duration: ${currSingleLoan.data.duration_months} Months</p>
+                    <p class="meta">Loan Due date: ${currSingleLoan.data.due_date}</p>
+                </div>
+            </div>
 
-                    xhr = new XMLHttpRequest();
-                    xhr.open('POST', __mpc_uri__() + 'functions/mpc-ajax-action.php', true);
-                    xhr.onreadystatechange = function(){
-                        if(this.readyState == 4 && this.status == 200){
-                            rtndiv.innerHTML = this.response;
+            <div class="form-group">
+                <label>Repayment Amount (₦)</label>
+                <input type="number" placeholder="Enter amount paid">
+            </div>
 
-                            __mpcCountcomma__(); //add comma after every 100 
-                            __mpc_loan_approvalRequest(); //trying to call loan approval function
-                           
+            <div class="form-group">
+                <label>Payment Date</label>
+                <input type="date">
+            </div>
 
-                            if(previ !== 2){
-                                __mpc_disabled__('mpc-disabled', 'ADMIN'); ///disabled all the input here
-                            }
-                        }   
+            <div class="form-group">
+                <label>Payment Method</label>
+                <select>
+                    <option>Cash</option>
+                    <option>Transfer</option>
+                    <option>POS</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Notes (optional)</label>
+                <textarea placeholder="Enter additional details..."></textarea>
+            </div>
+
+            <div class="btn-row">
+                <button class="cancel">Cancel</button>
+                <button data-0-track="${trackingId}" ${currSingleLoan.data.status !== 'active' && currSingleLoan.data.status !== 'approved' ? 'disabled' : '' } class="submit __sum__mandina">Submit Repayment</button>
+            </div>
+        </div>
+
+                    `;
+                //cancel Btn
+
+                api.selector('.cancel').addEventListener('click', () => {
+                    api.selector('.closeData').click();
+                })
+
+
+                // submit Btn
+                api.selector('.__sum__mandina').addEventListener('click', async () => {
+                    api.showToast('Submitting repayment, please wait...');
+                    //gather all data here
+                    let repayAmount = api.selector('.repay-container input[type="number"]').value;
+                    let payDate = api.selector('.repay-container input[type="date"]').value;
+                    let payMethod = api.selector('.repay-container select').value;
+                    let notes = api.selector('.repay-container textarea').value;
+
+                    console.log(trackingId)
+
+                    let repayData = JSON.stringify({
+                        tracking_code: trackingId,
+                        repayment_amount: repayAmount,
+                        payment_method: 'Cash',
+                        payment_reference: payMethod,
+                        notes: notes
+                    });
+
+
+                    let submitRepay = await api.submitRepayment(repayData);
+                    console.log(submitRepay);
+                    if(submitRepay.status === 'success'){
+                        api.showToast('Repayment recorded successfully');
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 2000);
+                    }else {
+                        api.showToast(submitRepay.message);
                     }
-                    xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-                    xhr.send(item1);
-                }
+
+                })
             })
+        })
+    })
 
 
     </script>

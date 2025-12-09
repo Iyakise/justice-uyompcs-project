@@ -653,11 +653,11 @@ if(isset($_GET['PERM']) && !empty($_GET['PERM']) && $_GET['PERM'] == 'myYakiseMY
         <td>Name </td>
         <td>Contact Address</td>
         <td>Phone </td>
-        <td>Group </td>
-        <td>Branch </td>
-        <td>Account No.</td>
-        <td>Profile</td>
-        <td>status</td>
+        <!-- <td>Group </td>
+        <td>Branch </td> -->
+        <td>Staff ID.</td>
+        <!-- <td>Profile</td>
+        <td>status</td> -->
     </tr>
 
 
@@ -687,7 +687,7 @@ if(isset($_GET['PERM']) && !empty($_GET['PERM']) && $_GET['PERM'] == 'myYakiseMY
 		<tr>
 			<td>
 				<?php echo $data[$col1]?>
-				<a href="<?php echo __mpc_root__()?>dashboard.php/?action=verifyAction&actionId=<?php echo $data[$col1]?>&t=member&r1=Settings&r2=createMember" class="rmv-item" target="_blank" rel="noopener noreferrer">
+				<a href="<?php echo __mpc_root__()?>/user/dashboard.php/?action=verifyAction&actionId=<?php echo $data[$col1]?>&t=member&r1=Settings&r2=createMember" class="rmv-item" target="_blank" rel="noopener noreferrer">
 					<i class="fa-trash-alt fas "></i>
 				</a>
 			</td>
@@ -698,8 +698,8 @@ if(isset($_GET['PERM']) && !empty($_GET['PERM']) && $_GET['PERM'] == 'myYakiseMY
 			<td><?php echo $data[$col6]?></td>
 			<td><?php echo $data[$col7]?></td>
 			<td><?php echo $data[$col8]?></td>
-			<td><img src="<?php echo __mpc_root__().'asset/img/'. $data[$col9]?>" alt="member pics" srcset="<?php echo __mpc_root__().'asset/img/'. $data[$col9]?>" class="dboard-img"></td>
-			<td class="member-status"><?php echo $status?></td>
+			<!-- <td><img src="<?php echo __mpc_root__().'asset/img/'. $data[$col9]?>" alt="member pics" srcset="<?php echo __mpc_root__().'asset/img/'. $data[$col9]?>" class="dboard-img"></td>
+			<td class="member-status"><?php echo $status?></td> -->
 		</tr>
     <?php
     }

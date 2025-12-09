@@ -44,6 +44,14 @@ export async function getLoanTransaction(root, memId, memPh){
     }
 }
 
+//create custom element selection function
+export function selector(selector) {
+    return document.querySelector(selector);
+}
+
+export function selectorAll(selector) {
+    return document.querySelectorAll(selector);
+}
 
 export async function fetchDataPost(root, file, data = {}) {
     try {
@@ -75,6 +83,7 @@ export function showToast(txt, time = 3000, type = 'info'){
 	  text: txt,
 	  className: type,
 	  duration:time,
+      close: true,
 	  style: {
 		background: "linear-gradient(to right, #00b09b, #96c93d)",
 	  }
@@ -250,7 +259,7 @@ export function normalPopup(){
                         newPopup(document.body, style, async function(){
                             let memberSecret = await getLoanTransaction(__mpc_uri__(), member.getAttribute('data-action-iyakise'), member.getAttribute('data-action-phone')); 
                            let dwrap = document.querySelector('.popContentWrap');
-                            console.log(memberSecret);
+                          //  console.log(memberSecret);
                                dwrap.innerHTML = `
                                     <h2 class="sticky-top bg-white p-2">${member.getAttribute('data-action-name')} Loan transaction information</h2>
                                     <hr class="mpcHr">
@@ -519,7 +528,7 @@ export function normalPopup(){
 
   
             if(debit < 0 && credit < 0 && balance < 0){
-                errrorStatus.innerHTML = 'Enter correct values';
+                errorStatus.innerHTML = 'Enter correct values';
                 errorStatus.classList.add('text-danger');
                 setTimeout(() => {
                     errorStatus.innerHTML = '';
@@ -527,10 +536,10 @@ export function normalPopup(){
                 }, 3000);
             }
 
-            if(balance <= 0){
-                    showToast('Enter valid amount please');
-                    return;
-            }
+            // if(balance <= 0){
+            //         showToast('Enter valid amount please');
+            //         return;
+            // }
 
             const record = {
                     member_id: actionBtn.getAttribute('member-uid'),
@@ -569,4 +578,396 @@ export function normalPopup(){
                     });
                   })
 
+}
+
+
+//get total deposit
+export async function getCountDeposit() {
+    try {
+        const req = await fetch(`${__mpc_uri__()}functions/deposit.c.php`,{
+            method: 'POST',
+        });
+            if(!req.ok){
+                let td = await req.text();
+                throw new Error("Error: Server Responded with " + td);
+            }
+
+        const result = await req.json();
+            return result;  
+    } catch (error) {
+        console.error(error);
+        return false;
+
+    }
+}
+
+
+
+//create loan
+export async function requestLoan(root, data) {
+    try {
+        const req = await fetch(`${root}functions/create-loan.php`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        });
+        if (!req.ok) {
+            const text = await req.text();
+            throw new Error(`Error: Server responded with ${text}`);
+        }
+        const result = await req.json();
+        return result;
+    } catch (error) {
+        console.error('Fetch Error:', error);
+        return { status: 'error', message: error.message };
+    }
+}
+
+
+//function to send special saveing loan request
+export async function specialLoanRequest(root, data) {
+    try {
+        const req = await fetch(`${root}functions/special-Request.php`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        });
+
+        if (!req.ok) {
+            const text = await req.text();
+            throw new Error(`Error: Server responded with ${text}`);
+        }
+
+        const result = await req.json();
+        return result;
+
+
+    }catch(error){
+        console.error('Fetch Error:', error);
+        return { status: 'error', message: error.message };
+    }
+
+}
+
+
+//get special savings balance first
+export async function getSpecialSavings(root, memId, memPh){
+    try {
+        const req = await fetch(`${root}functions/special.savings.php`, {
+            method: 'POST',
+            headers: {
+                'Content-type': 'application/json'
+            },
+            body: JSON.stringify({mem_id: memId, mem_phone: memPh})
+        });
+
+            if(!req.ok){
+                let td = await req.text();
+                throw new Error("Error: Server Responded with " + td);
+            }
+
+        const result = await req.json();
+            return result;
+    } catch (error) {
+        console.error(error);
+        return false;
+    }
+}
+
+
+//get total loan members
+export async function getTotalLoanMembers(root, memId, memPh){ 
+    try {
+        const req = await fetch(`${root}functions/members_loan_count.php`,{
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({member_id: memId, members_phone: memPh})
+        });
+            if(!req.ok){
+                let td = await req.text();
+                throw new Error("Error: Server Responded with " + td);
+            }
+
+        const result = await req.json();
+            return result;
+    
+    }catch (error) {
+        console.error(error);
+        return false;
+    }
+}
+
+
+//send request to track loan
+export async function trackLoanRequest(root, trackingId){
+    try {
+        const req = await fetch(`${root}functions/track.loan.record.php`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({tracking_code: trackingId})
+        });
+
+        if (!req.ok) {
+            const text = await req.text();
+            throw new Error(`Error: Server responded with ${text}`);
+        }
+
+        const result = await req.json();
+        return result;
+
+    } catch (error) {
+        console.error('Fetch Error:', error);
+        return { status: 'error', message: error.message };
+    }
+}
+
+
+//get count all loan request on loan.nw.php
+export async function getCountAllLoanRequests(){
+    try {
+        const req = await fetch(`${__mpc_uri__()}functions/loan.nw.php`,{
+            method: 'POST',
+        });
+            if(!req.ok){
+                let td = await req.text();
+                throw new Error("Error: Server Responded with " + td);
+            }
+        const result = await req.json();
+            return result;  
+    } catch (error) {
+        console.error(error);
+        return false;
+    }
+}
+
+//get all loan request out for super admin
+export async function getAllLoanRequests(){
+    try {
+        const req = await fetch(`${__mpc_uri__()}functions/pull.loan.out.php`,{
+            method: 'POST',
+        });
+            if(!req.ok){
+                let td = await req.text();
+                throw new Error("Error: Server Responded with " + td);
+            }
+        const result = await req.json();
+            return result;
+    } catch (error) {
+        console.error(error);
+        return false;
+    }
+}
+
+
+//get single loan request details
+export async function getSingleLoanRequest(tracking_code){
+    try {
+        const req = await fetch(`${__mpc_uri__()}functions/single.loan.info.php?tracking_code=${tracking_code}`,{
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            // body: JSON.stringify({tracking_code: tracking_code})
+        }); 
+
+            if(!req.ok){
+                let td = await req.text();
+                throw new Error("Error: Server Responded with " + td);
+            }
+        const result = await req.json();
+            return result;  
+    } catch (error) {
+        console.error(error);
+        return false;
+    }
+}
+
+
+//send loan approval request
+export async function approveLoanRequest(tracking_code, approved_by){
+    const data = {
+        tracking_code: tracking_code,
+        approved_by: approved_by
+    };  
+    try {
+        const req = await fetch(`${__mpc_uri__()}functions/adm.approved.loan.status.php`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        });
+
+        if (!req.ok) {
+            const text = await req.text();
+            throw new Error(`Error: Server responded with ${text}`);
+        }
+        const result = await req.json();
+        return result;
+
+    } catch (error) {
+        console.error('Fetch Error:', error);
+        return { status: 'error', message: error.message };
+    }
+}
+
+
+//send loan approval request
+export async function rejectLoanRequest(tracking_code, approved_by){
+    const data = {
+        tracking_code: tracking_code,
+        approved_by: approved_by,
+    };  
+    try {
+        const req = await fetch(`${__mpc_uri__()}functions/reject.loan.request.php`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        });
+
+        if (!req.ok) {
+            const text = await req.text();
+            throw new Error(`Error: Server responded with ${text}`);
+        }
+        const result = await req.json();
+        return result;
+
+    } catch (error) {
+        console.error('Fetch Error:', error);
+        return { status: 'error', message: error.message };
+    }
+}
+
+
+//get single balance for members
+export async function getSingleBalance(memId, memPh){
+    try {
+        const req = await fetch(`${__mpc_uri__()}functions/mpc.single.account.php?member_id=${memId}&member_phone=${memPh}`, {
+            method: 'GET',
+            headers: {
+                'Content-type': 'application/json'
+            }
+
+        });
+
+            if(!req.ok){
+                let td = await req.text();
+                throw new Error("Error: Server Responded with " + td);
+            }
+
+        const result = await req.json();
+            return result;
+    } catch (error) {
+        console.error(error);
+        return false;
+    }   
+
+
+}
+
+//function to get all loan members out
+export async function allLoanMembers() {
+      try {
+        const req = await fetch(`${__mpc_uri__()}functions/pull.loan.out.php`, {
+            method: 'GET',
+            headers: {
+                'Content-type': 'application/json'
+            }
+
+        });
+
+            if(!req.ok){
+                let td = await req.text();
+                throw new Error("Error: Server Responded with " + td);
+            }
+
+        const result = await req.json();
+            return result;
+    } catch (error) {
+        console.error(error);
+        return false;
+    }
+}
+
+
+//function to get all loan members out
+export async function normalLoan() {
+      try {
+        const req = await fetch(`${__mpc_uri__()}functions/normal.loan.php`, {
+            method: 'GET',
+            headers: {
+                'Content-type': 'application/json'
+            }
+
+        });
+
+            if(!req.ok){
+                let td = await req.text();
+                throw new Error("Error: Server Responded with " + td);
+            }
+
+        const result = await req.json();
+            return result;
+    } catch (error) {
+        console.error(error);
+        return false;
+    }
+}
+
+
+//function to submit repayment
+export async function submitRepayment(repayData){
+    try {
+        const req = await fetch(`${__mpc_uri__()}functions/loan.repayment.php`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: repayData
+        });
+
+        if (!req.ok) {
+            const text = await req.text();
+            throw new Error(`Error: Server responded with ${text}`);
+        }
+        const result = await req.json();
+        return result;
+
+    } catch (error) {
+        console.error('Fetch Error:', error);
+        return { status: 'error', message: error.message };
+    }
+}
+
+//function to count total members and total loan given
+export async function getTotalMembersAndLoan(){
+    try {
+        const req = await fetch(`${__mpc_uri__()}functions/count.member.me.php`, {
+            method: 'GET',
+            headers: {
+                'Content-type': 'application/json'
+            }
+        });
+
+        if(!req.ok){
+            let td = await req.text();
+            throw new Error("Error: Server Responded with " + td);
+        }
+
+        const result = await req.json();
+            return result;
+    } catch (error) {
+        console.error(error);
+        return false;
+    }
 }

@@ -23,40 +23,40 @@ if(isset($_GET['action']) && !empty($_GET['action'])){
             <i class="mpcMsg">Welcome <?php echo $uidName?></i>
             <hr class="mpcHr">
             <div class="mpc-dashboard-data-wrap">
-                <div class="mpc-db-data-one shadow">
+                <div class="mpc-db-data-one shadow p-2">
                     <div class="db-iconsWrap">
                         <i class="fas fa-money-check fa-3x"></i>
                     </div>
                     <div class="db-title" title="SHARES ACCOUNT ">
                         <h6>SHARES: &#8358; <?php //echo __mpc_getMember_balance__($conn, $uidId, $uidPhone, 'mpc_account_shares', 'shares_member_id', 'shares_member_phone')[2]?>
-                        <?php echo __mpcMemberAccountBal__($conn, 'mpc_account_shares', $uidId, $uidPhone, 'shares_member_id', 'shares_member_phone', 'shares_id')[2]?>
+                            <span class="sharesBalance">0.00</span>
                         </h6>
                         
                     </div>
                 </div>
 
-                <div class="mpc-db-data-one shadow">
+                <div class="mpc-db-data-one shadow p-2">
                     <div class="db-iconsWrap">
                         <i class="fas fa-money-check fa-3x"></i>
                     </div>
                     <div class="db-title" title="THRIFT SAVING">
-                        <h6>THRIFT: &#8358; <?php echo __mpc_getMember_balance__($conn, $uidId, $uidPhone, 'mpc_thrift_saving', 'thrift_mem_id	', 'thrift_mem_phone')[2]?></h6>
+                        <h6>THRIFT: &#8358; <span class="thriftBalance">0.00</span></h6>
                         
                     </div>
                 </div>
 
-                <div class="mpc-db-data-one shadow">
+                <div class="mpc-db-data-one shadow p-2">
                     <div class="db-iconsWrap">
                         <i class="fas fa-money-check fa-3x"></i>
                     </div>
                     <div class="db-title" title="SPECIAL SAVING">
-                        <h6>SPECIAL: &#8358; <?php echo __mpc_getMember_balance__($conn, $uidId, $uidPhone, 'mpc_special_saving', 'mem_id', 'mem_phone')[2]?></h6>
+                        <h6>SPECIAL: &#8358; <span class="specialBalance">0.00</span></h6>
                         
                     </div>    
                 </div>
 
                 <!-- PASTE START HERE-->
-                <div class="mpc-db-data-one shadow">
+                <!-- <div class="mpc-db-data-one shadow p-2">
                     <div class="db-iconsWrap">
                         <i class="fas fa-money-check fa-3x"></i>
                     </div>
@@ -64,19 +64,19 @@ if(isset($_GET['action']) && !empty($_GET['action'])){
                         <h6>WELFARE: &#8358; <?php echo __mpc_getMember_balance__($conn, $uidId, $uidPhone, 'mpc_welfare_contribution', 'welfare_mem_id', 'welfare_mem_phone')[2]?></h6>
                         
                     </div>
-                </div>
+                </div> -->
 
-                <div class="mpc-db-data-one shadow">
+                <a class="mpc-db-data-one shadow p-2 text-decoration-none color-initial" style="color:var(--mpc-normal-mode-color--)" href="<?php echo __mpc_root__()?>dashboard.php/?action=RequestLoad">
                     <div class="db-iconsWrap">
-                        <i class="fas fa-money-check fa-3x"></i>
+                        <i class="fas fa-hand-holding-usd fa-3x"></i>
                     </div>
                     <div class="db-title" title="FIXED DEPOSIT ACCOUNT">
-                        <h6>FIXED DEPOSIT: &#8358; <?php echo __mpc_getMember_balance__($conn, $uidId, $uidPhone, 'mpc_fixed_deposit', 'fixed_mem_id', 'fixed_mem_phone')[2]?></h6>
+                        <h6>REQUEST LOAN</h6>
                         
                     </div>
-                </div>
+                </a>
 
-                <div class="mpc-db-data-one shadow">
+                <div class="mpc-db-data-one shadow p-2">
                     <div class="db-iconsWrap">
                         <i class="fas fa-balance-scale fa-3x"></i>
                     </div>
@@ -87,23 +87,23 @@ if(isset($_GET['action']) && !empty($_GET['action'])){
                 </div>
                 <!--PASTE END HERE -->
 
-                <div class="mpc-db-data-one shadow">
+                <!-- <div class="mpc-db-data-one shadow">
                     <div class="db-iconsWrap">
                         <i class="fas fa-right-left fa-3x"></i>
                     </div>
                     <div class="db-title" title="Transfer cash to Member">
                         <h6><a href="<?php echo __mpc_root__()?>dashboard.php/?action=transfer" style="color:rgb(225, 145, 24);text-decoration:none;">Transfer cash</a></h6>
                     </div>
-                </div>
+                </div> -->
 
-                <div class="mpc-db-data-one shadow">
+                <!-- <div class="mpc-db-data-one shadow">
                     <div class="db-iconsWrap">
                         <i class="fas fa-money-bill fa-3x"></i>
                     </div>
                     <div class="db-title" title="Repay Loan">
                         <h6>Repay Loan</h6>
                     </div>
-                </div>
+                </div> -->
 
                 <div class="mpc-db-data-one shadow">
                     <div class="db-iconsWrap">
@@ -250,6 +250,18 @@ if(isset($_GET['action']) && !empty($_GET['action'])){
                     })
                 }
 
+                try{
+                    let db_balance = await api.getSingleBalance(id, ph);
+                    console.log(db_balance);
+                    api.selector('.sharesBalance').innerText = db_balance.data.shares_balance.toFixed(2);
+                    api.selector('.thriftBalance').innerText = db_balance.data.thrift_saving_balance.toFixed(2);
+                    api.selector('.specialBalance').innerText = db_balance.data.special_saving_balance.toFixed(2);
+
+
+                }catch(error){
+                    api.showToast(error);
+                    console.error('Error fetching balances:', error);
+                }
             </script>
 
 <style>
@@ -1429,6 +1441,7 @@ if(isset($_GET['Read']) && !empty($_GET['Read']) && $_GET['Read'] == 'readSingle
 }else if($_GET['action'] === 'RequestLoad'){
 
 ?>
+
 <style>
     *{
         transition: 0.5s linear;
@@ -1505,10 +1518,19 @@ if(isset($_GET['Read']) && !empty($_GET['Read']) && $_GET['Read'] == 'readSingle
         border: 1px solid orange;
     }
 
+    .toQ00{
+        height: 35px;
+        border: 1px solid #ccc;
+    }
+
 @media only screen and (max-width:800px){
     .__ts{
         width: 80%;
         height: auto;
+    }
+
+    .loan-card{
+        width: 95% !important;
     }
 }
 
@@ -1534,9 +1556,14 @@ if(isset($_GET['Read']) && !empty($_GET['Read']) && $_GET['Read'] == 'readSingle
      <i class="mpcMsg">Request Loan</i>
         <hr class="mpcHr">
     <div class="_mpc req-loan">
-<input type="search" class="mpcTrackid setStyle createLoanInput " placeholder="Enter your Tracking ID">
-
-        <div class="__ts xmltrk mpc-fancy-style">
+        <div class="toQ00 w-100 d-flex h">
+        <input type="search" class="mpcTrackid setStyle createLoanInput " placeholder="Enter your Tracking ID">
+        <button class="mpc-btn mpcBtnActive btn-success   _track_loan_">
+            <i class="fas fa-search"></i>
+        </button>
+        </div>
+<br><br>
+    <div class="__ts xmltrk mpc-fancy-style">
             <div class="cls close" title="CLOSE THIS BOX"><i class="fas fa-close fa-2x"></i></div>
 
             <div class="table-responsive">
@@ -1569,163 +1596,333 @@ $system = getSystemName($conn)[1];
             </div>
         </div>
 
-        <div class="__ts tsxml mpc-fancy-style">
-            <h5 class="p-2"><?php echo $uidName?>, How much are you requesting for?</h5>
-            <div class="itm">
-                <input type="text" placeholder="Enter amount" class="setStyle createLoanInput amountRQ">
-                <textarea cols="30" rows="10" class="Txt loan-err setStyle" placeholder="Tell us why you are requesting for this Amount"></textarea>
-                <button class="mpc-btn RequestLoan m-2">Request Loan</button>
+        <!-- Loan Calculator UI Component (No boilerplate) -->
+
+<div class="loan-card">
+    <h3>Loan Calculator</h3>
+
+    <label>Loan Amount</label>
+    <input type="number" id="loan_amount" placeholder="Enter amount" />
+
+    <label>Duration (Months)</label>
+    <select id="months">
+        <option value="">Select...</option>
+        <option value="3">3 Months</option>
+        <option value="6">6 Months</option>
+        <option value="9">9 Months</option>
+        <option value="10">10 Months</option>
+        <option value="12">12 Months</option>
+        <option value="18">18 Months</option>
+        <option value="20">20 Months</option>
+        <option value="24">24 Months</option>
+    </select>
+
+    <div class="loan-results">
+        <div><span>Total Interest:</span> <strong id="interest">₦0</strong></div>
+        <div><span>Total Payable:</span> <strong id="total_payable">₦0</strong></div>
+        <div><span>Monthly Payment:</span> <strong id="monthly_payment">₦0</strong></div>
+        <div><span>Due Date:</span> <strong id="due_date">---</strong></div>
+    </div>
+
+    <button class="btn mpc-btn btn-success btn-active mt-1 mb-1 m-auto w-100 _g_go_">Request for Loan</button>
+    <button class="btn btn-danger btn-active m-1 m-auto w-100 mt-1 mb-1 _what_is_special_">Request Special Savings</button>
+    <h6 class="mt-1 mb-1 trackingCode"></h6>
+</div>
+
+<script type="module">
+    //loan calculator script
+    import * as api from "../script/api.js";
+
+    const reqLoanBtn = api.selector('._g_go_');
+    const specialbtn = api.selector('._what_is_special_');
+
+        //checking loan status for member using tracking id
+    const trackLoanBtn = api.selector('._track_loan_');
+    if(trackLoanBtn){
+        trackLoanBtn.addEventListener('click', async function(){
+            const trackingIdInput = api.selector('.mpcTrackid');
+            const trackingId = trackingIdInput.value.trim();
+
+            if(trackingId === ''){
+                api.showToast("Please enter a valid Tracking ID");
+                return;
+            }
+
+            const loanData = await api.trackLoanRequest("<?=__mpc_root__()?>", trackingId);
+            if(loanData.status === 'success'){
+                let message = `Loan Found in ${loanData.source_table}:\n`;
+                for(const [key, value] of Object.entries(loanData.data)){
+                    message += `${key}: ${value}\n`;
+                }
+                api.newPopup('Loan Details', {width: '400px', height: 'auto', padding: '20px', background:'#000', color:'#fff'}, function(){
+                    const contentWrap = document.querySelector('.popContentWrap');
+                    contentWrap.innerHTML = `<pre style="white-space: pre-wrap; word-wrap: break-word;">${message}</pre>`;
+                });
+            } else {
+                api.showToast(loanData.message || "Loan not found");
+            }
+        });
+    }
+
+        reqLoanBtn.addEventListener('click', async function(){
+            let loanAmount  = api.selector("#loan_amount").value;
+            let duration    = api.selector("#months").value;
+            let trackcode   = api.selector('.trackingCode');
+
+            if(loanAmount === '' || loanAmount <= 0){
+                api.showToast('Enter valid loan amount');
+                return;
+            }
+
+            if(duration === ''){
+                api.showToast('Select loan duration');
+                return;
+            }
+
+            if(duration > 24){
+                api.showToast('Maximum loan duration is 24 months');
+                return;
+            }
+
+            if(localStorage.getItem('_mpc_loan_calculator_') === null){
+                api.showToast('Calculate loan details before proceeding');
+                return;
+            }
+            let calcData = JSON.parse(localStorage.getItem('_mpc_loan_calculator_'));
+
+            const data = {
+                loan_amount: loanAmount,
+                duration_months: duration,
+                member_id: "<?=$uidId?>",
+                member_phone: "<?=$uidPhone?>",
+                total_payable: calcData.total,
+                interest_rate: calcData.interestInpercent,
+                monthly_payment: calcData.monthly,
+                due_date: calcData.dueDate,
+                repayment_frequency: 'monthly'
+                
+            };
+
+            // console.log(data);
+            //proceed to send loan request
+            let response = await api.requestLoan(__mpc_uri__(), data);
+            // alert(response.message);
+            console.log(response);
+            api.showToast(`${response.message}, Your tracking ID is ${response.tracking_code }`);
+            if(response.status === 'success'){
+                trackcode.innerHTML = `Your tracking ID is: <strong>${response.tracking_code}</strong>`;
+                //clear local storage
+                localStorage.removeItem('_mpc_loan_calculator_');
+                //reset form
+                api.selector("#loan_amount").value = '';
+                api.selector("#months").value = '';
+                api.selector("#interest").textContent = "₦0";
+                api.selector("#total_payable").textContent = "₦0";
+                api.selector("#monthly_payment").textContent = "₦0";
+                api.selector("#due_date").textContent = "---";
+            }
 
 
-                <div class="LoanProcessing Info-loan">
-                    <div class="txtAmount">
-                        <i>Interest.</i>
-                        <h6 class="companyIntrest"></h6>
+
+        })
+
+        specialbtn.addEventListener('click', function() {
+            let style = {
+                width: '50%',
+                height: '350px',
+                padding: '20px',
+                borderRadius: '12px',
+                background: '#fff',
+                overflowY: 'auto',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+            }
+            //invoke popup here
+            api.newPopup('', style, function(){
+                let dwrap = document.querySelector('.popContentWrap');
+                    dwrap.innerHTML = '';
+                dwrap.innerHTML = `
+                    <h3 class="text-center">Special Savings Request</h3>
+                    <div class="SpecialAmount mt-2 mb-2 h-25">
+                    <!--label>Amount</label-->
+                    <input type="number" class="amountRQ p-2 w-100" placeholder="Enter amount" />
                     </div>
-                    <div class="txtAmount">
-                        <i>Monthy repayment</i>
-                        <h6 class="mpc-monthlyPayment"></h6>
+                    <div class="SpecialAmount h-50">
+                        <!--label>Reason</label-->
+                        <textarea class="loan-err p-2 w-100 h-100" placeholder="Enter reason for special savings request"></textarea>
                     </div>
-                    <div class="txtAmount">
-                        <i>Amount</i>
-                        <h6 class="borrowedAmount"></h6>
-                    </div>
-                    <!-- <div class="txtAmount"></div> -->
-                </div>
-            </div>
+                    <button class="mpc-btn btn-danger btn-active mt-2 submitSpecialRequest w-100">Submit Request</button>
+                    <p class="specialErrRtn mt-2 text-dark" style="font-weight:600;transition:0.5s;"></p>
+               
+              
+                
+<style>
+.SpecialAmount{
+    margin-bottom: 10px;
+    height: auto;
+}
 
-            
-<script type="text/javascript">
-    let amountInput = document.querySelector('.amountRQ');
-    let txtArea = document.querySelector('.Txt');
-    let actionButt = document.querySelector('.RequestLoan');
-    let company = document.querySelector('.companyIntrest');
-    let amountRtn = document.querySelector('.mpc-monthlyPayment');
-    let result = document.querySelector('.borrowedAmount');
-    let err = document.querySelector('.Usr-rtn');
-    let userId = "<?php echo $uidId?>";
-    let userPhone = "<?php echo $uidPhone?>";
+.SpecialAmount input::placeholder,
+.SpecialAmount textarea::placeholder{
+    font-size: 14px;
+    color: #999;
+}
+              
+@media only screen and (max-width:800px){
+    .popContentWrap{
+        width: 90%!important;
+    }
+    .SpecialAmount .amountRQ,
+    .SpecialAmount .loan-err{
+        width: 100%;
+    }
+}
+</style>
+             
+                    `;
+               
+                //handle special savings request submission
+                const submitBtn = document.querySelector('.submitSpecialRequest');
+                submitBtn.addEventListener('click', async function(){
+                    const amountInput = api.selector('.amountRQ');
+                    const reasonInput = api.selector('.loan-err');
+                    const errRtn = api.selector('.specialErrRtn');
 
-    actionButt.addEventListener('click', function(e){
-        e.preventDefault;
+                    const memberSpecialBalance =   await api.getSpecialSavings(__mpc_uri__(), "<?=$uidId?>", "<?=$uidPhone?>");
+                    console.log(memberSpecialBalance);
+                    let amount = amountInput.value;
+                    let reason = reasonInput.value;
 
-        if(amountInput.value == ''){
-            amountInput.style.border = '2px solid red';
-            err.innerHTML = 'Enter Loan Amount';
-            return;
-        }
-
-        if(txtArea.value == ''){
-            txtArea.style.border = '2px solid red';
-            err.innerHTML = 'Tell '+ "<?php echo getSystemName($conn)[1]?>" + ', Why you are requesting for this amount';
-
-            return;
-        }
-
-        if(txtArea.value.length < 50){
-            txtArea.style.border = '2px solid red';
-            err.innerHTML = "<?php echo getSystemName($conn)[1]?>" + ', cannot Accept this, please Explain in details';
-
-            return;
-        }
-
-amountInput.style.border = 'none';
-txtArea.style.border = 'none';
-
-        let xhr = new XMLHttpRequest();
-        let url = __mpc_uri__() + 'functions/mpc-ajax-action.php';
-        let data = JSON.stringify({uid: userId, uidPhone: userPhone, Permition:'loanProcessor', amount:amountInput.value, loanInfo:txtArea.value});
-
-            xhr.open('POST', url, true);
-            xhr.onreadystatechange = function(){
-                if(this.readyState == 4 && this.status == 200){
-                    let resp = JSON.parse(this.response);
-                    // alert(this.response);
-                    if(resp.code == 200){
-                        err.innerHTML = resp.msg + ', This is your tracking ID "'+resp.track+'", copy and keep it safe!';
-                        err.classList.add('fa-fade');
-                        err.classList.add('text-success');
+                    if(amount === '' || amount <= 0){
+                        errRtn.innerHTML = 'Enter valid amount';
+                        api.showToast('Enter valid amount', 3000, 'error');
                         return;
                     }
 
-                    err.innerHTML = resp.msg + ' status=' + resp.code;
-                    err.classList.add('fa-fade');
-                    err.classList.add('text-danger');
+                    // if(reason === ''){
+                    //     errRtn.innerHTML = 'Enter reason for special savings request';
+                    //     api.showToast('Enter valid amount', 3000, 'error');
+                    //     return;
+                    // }
 
-                }
-            }
-            xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-            xhr.send('XLoanRsqt='+data);
-    })
+                    if(amount > memberSpecialBalance.data.balance){
+                        errRtn.innerHTML = 'Your Balance is too low, please fund wallet then try again!';
+                        api.showToast('Your Balance is too low, please fund wallet then try again!', 3000, 'error');
+                        return;
+                    }
 
-    amountInput.addEventListener('input', function(){
-        // alert(4)
-        if(this.value.search(/[^0-9]/i) != -1){
-            amountInput.style.border = '2px solid red';
-            return;
-        }else{
-            amountInput.style.border = 'none';
+                    //proceed to send special savings request
+                    const requestData = {
+                        member_id: "<?=$uidId?>",
+                        members_phone: "<?=$uidPhone?>",
+                        loan_amount: amount,
+                        loan_reason: reason
+                    };
+                    /**
+                     * member_id
+members_phone
+loan_amount
+loan_reason
+                     */
 
-            let interest_rate = 10;
-            let amount = this.value;
-            let months = 10;
+                    let response = await api.specialLoanRequest(__mpc_uri__(), requestData);
+                    // console.log(response);
+                    errRtn.innerHTML = response.message + ' Your tracking ID is ' + response.tracking_code;
+                    if(response.status === 'success'){
+                        //clear form
+                        api.showToast(`${response.message}, Your tracking ID is ${response.tracking_code}`, 4000, 'success');
+                        amountInput.value = '';
+                        reasonInput.value = '';
+                    }
 
-            let interest = (amount * (interest_rate * .01)) / months; //company interest
-            payment = ((amount / months) + interest).toFixed(2); // payment
-            payment = payment.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-            interest = interest.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-            amount = amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+                })
+            });
+        })
+    
+</script>
+<style>
 
-            company.innerHTML = "&#8358;"+interest;
-            result.innerHTML = "&#8358;"+amount;
-            amountRtn.innerHTML = "&#8358;"+ payment;
 
+.loan-card {
+    background: #fff;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    width: 60%;
+    margin: 1rem auto 3rem auto;
+}
+
+.loan-card h3 {
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+.loan-card label {
+    display: block;
+    margin: 10px 0 5px;
+    font-weight: 600;
+}
+
+.loan-card input,
+.loan-card select {
+    width: 100%;
+    padding: 10px;
+    font-size: 15px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+}
+
+.loan-results {
+    margin-top: 15px;
+    background: #f4f7ff;
+    padding: 15px;
+    border-radius: 10px;
+}
+
+.loan-results div {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+</style>
+
+<script>
+    const loan = document.getElementById("loan_amount");
+    const months = document.getElementById("months");
+
+    loan.addEventListener("input", calculate);
+    months.addEventListener("change", calculate);
+
+    function calculate() {
+        let amount = parseFloat(loan.value) || 0;
+        let duration = parseInt(months.value) || 0;
+
+        if (amount > 0 && duration > 0) {
+            let interest = amount * 0.01 * duration;
+            let total = amount + interest;
+            let monthly = total / duration;
+
+            let key = {
+                        interest: interest, 
+                        total: total, 
+                        monthly: monthly.toFixed(2),
+                        dueDate: new Date(new Date().setMonth(new Date().getMonth() + duration)),
+                        interestInpercent: 1.00
+                    };
+
+            document.getElementById("interest").textContent = "₦" + interest.toLocaleString();
+            document.getElementById("total_payable").textContent = "₦" + total.toLocaleString();
+            document.getElementById("monthly_payment").textContent = "₦" + monthly.toLocaleString(undefined, {minimumFractionDigits: 2});
+            let due = new Date();
+            due.setMonth(due.getMonth() + duration);
+            document.getElementById("due_date").textContent = due.toDateString();
+            localStorage.setItem('_mpc_loan_calculator_', JSON.stringify(key));
             
         }
-    })
-
-
-//tracking id start here
-let tracker = document.querySelector('.mpcTrackid');
-    tracker.addEventListener('input', function(){
-        let dataRtn = document.querySelector('.txtrtnhere');
-        let searchHide = document.querySelector('.tsxml');
-        let searchShow = document.querySelector('.xmltrk');
-
-
-
-        if(this.value !== ''){
-            searchHide.style.display = 'none';
-            searchShow.style.display = 'block';
-
-
-            let data = JSON.stringify({searchKey: this.value, USRkey:'PermPermited'});
-            let xhr = new XMLHttpRequest();
-                xhr.open('POST', __mpc_uri__() + 'functions/mpc-mem-ajax.php', true);
-                xhr.onreadystatechange = function(){
-                    if(this.readyState == 4 && this.status == 200){
-
-                       dataRtn.innerHTML = this.response;
-                    }
-                }
-                xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-                xhr.send('TrackQry=' + data);
-        }
-    })
-
-//close popup
-    let popclose = document.querySelector('.cls');
-        popclose.addEventListener('click', function(){
-            let searchHide = document.querySelector('.tsxml');
-            let searchShow = document.querySelector('.xmltrk');
-
-                //hide and show element here
-                searchHide.style.display = 'block';
-                searchShow.style.display = 'none';
-        })
+    }
 </script>
 
-        </div>
+
+
     </div>
 <?php
     }else if($_GET['action'] === 'Repayloan')

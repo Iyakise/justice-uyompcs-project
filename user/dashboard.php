@@ -45,10 +45,17 @@ if(!isset($_SESSION['MPC_ADMIN_LOGIN_SUPE_SESSION'])) {
 	<script  type="application/javascript" src="<?php echo __mpc_root__()?>script/mpc-url.min.js"></script>
 	<script  type="module" src="<?php echo __mpc_root__()?>script/api.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
     <!--script  type="text/javascript" src="<?php //echo __mpc_root__()?>script/chart.js"></script-->
     <!--script src="https://cdn.jsdelivr.net/npm/chart.umd.js.map"></script-->
     <script src="<?php echo __mpc_root__()?>asset/tinymce.min.js"></script>
+    <style>
+        *{
+            font-family: 'Montserrat', sans-serif !important;
+        }
+    </style>
 </head>
 <body class="dsb-body session-expire offlineState mpc-body-class mpc-popup">
 
@@ -98,13 +105,13 @@ if(!isset($_SESSION['MPC_ADMIN_LOGIN_SUPE_SESSION'])) {
                     </a>
                 </li>
 
-                <li>
+                <!-- <li>
                     <a href="<?php echo __mpc_root__()?>user/dashboard.php/?action=accounting&r=act" class="mpc-dsb-link">
                         <i class="fas fa-pen-alt " title="ACCOUNTING"></i>
 
                         <span class="nav-item">Accounting</span>
                     </a>
-                </li>
+                </li> -->
 
                 <!--<li>-->
                 <!--    <a href="<?php //echo __mpc_root__()?>user/dashboard.php/?action=cSheet&r=client&rtn=cs" class="mpc-dsb-link">-->
@@ -127,15 +134,15 @@ if(!isset($_SESSION['MPC_ADMIN_LOGIN_SUPE_SESSION'])) {
                     <a href="<?php echo __mpc_root__()?>user/dashboard.php/?action=CreateLoan&r=cloan&rtn=cloan" class="mpc-dsb-link">
                         <i class="fas fa-check-circle" title="CREATE LOAN"></i>
 
-                        <span class="nav-item">Create Loan</span>
+                        <span class="nav-item">Loan Request</span>
                     </a>
                 </li>
 
                 <li>
                     <a href="<?php echo __mpc_root__()?>user/dashboard.php/?action=ActivateLoan&r=activateLoan&rtn=aloan" class="mpc-dsb-link">
-                        <i class="fas fa-broadcast-tower" title="CREATE USERS"></i>
+                        <i class="fas fa-broadcast-tower" title="LOAN REPAYMENTS"></i>
 
-                        <span class="nav-item">Approve loan</span>
+                        <span class="nav-item">Loan Repayments</span>
                     </a>
                 </li>
 
