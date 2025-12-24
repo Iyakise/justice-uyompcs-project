@@ -113,6 +113,15 @@
                 </a>
             </li>
 
+            <li class="list dues">
+                <b></b>
+                <b></b>
+                <a href="<?php echo __mpc_root__()?>dashboard.php/?action=Dues" class="mpc-m-navLink">
+                    <span class="icon"><i class="fas fa-balance-scale" title="My dues"></i></span>
+                    <span class="title">Dues</span>
+                </a>
+            </li>
+
             <li class="list tfer">
                 <b></b>
                 <b></b>
@@ -252,6 +261,8 @@
         }else if($_GET['action'] === 'MyNotifications'){
             require_once dirname(__FILE__) .'/functions/mpc-m-tool.php';
         }else if($_GET['action'] === 'RequestLoad'){
+            require_once dirname(__FILE__) .'/functions/mpc-m-tool.php';
+        }else if($_GET['action'] === 'Dues'){
             require_once dirname(__FILE__) .'/functions/mpc-m-tool.php';
         }
     }

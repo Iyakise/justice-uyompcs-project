@@ -78,6 +78,7 @@ export async function fetchDataPost(root, file, data = {}) {
 }
 
 
+
 export function showToast(txt, time = 3000, type = 'info'){
 	Toastify({
 	  text: txt,
@@ -969,5 +970,79 @@ export async function getTotalMembersAndLoan(){
     } catch (error) {
         console.error(error);
         return false;
+    }
+}
+
+
+
+//function to count total members and total loan given
+export async function getmembersBalanceAll(id, phone){
+    try {
+        const req = await fetch(`${__mpc_uri__()}functions/get.member.balance.php?id=${id}&phone=${phone}`, {
+            method: 'GET',
+            headers: {
+                'Content-type': 'application/json'
+            }
+        });
+
+        if(!req.ok){
+            let td = await req.text();
+            throw new Error("Error: Server Responded with " + td);
+        }
+
+        const result = await req.json();
+            return result;
+    } catch (error) {
+        console.error(error);
+        return false;
+    }
+}
+
+
+//function to submit repayment
+export async function dboardLoan(id, phone){
+    try {
+        const req = await fetch(`${__mpc_uri__()}functions/single.loan.member.php?id=${id}&phone=${phone}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!req.ok) {
+            const text = await req.text();
+            throw new Error(`Error: Server responded with ${text}`);
+        }
+        const result = await req.json();
+        return result;
+
+    } catch (error) {
+        console.error('Fetch Error:', error);
+        return { status: 'error', message: error.message };
+    }
+}
+
+
+
+//function to submit repayment
+export async function getMemberDues(id, phone){
+    try {
+        const req = await fetch(`${__mpc_uri__()}functions/single.member.dues.php?member_id=${id}&phone=${phone}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!req.ok) {
+            const text = await req.text();
+            throw new Error(`Error: Server responded with ${text}`);
+        }
+        const result = await req.json();
+        return result;
+
+    } catch (error) {
+        console.error('Fetch Error:', error);
+        return { status: 'error', message: error.message };
     }
 }

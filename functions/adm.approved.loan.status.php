@@ -45,7 +45,7 @@ if ($res_s->num_rows > 0) {
         SELECT balance 
         FROM mpc_special_saving 
         WHERE mem_id = ? AND mem_phone = ?
-        ORDER BY mem_id DESC LIMIT 1
+        ORDER BY special_id DESC LIMIT 1
     ";
 
     $stmt_bal = $conn->prepare($bal_query);

@@ -12,6 +12,17 @@ if(!defined('MPC-AUTORIZE-CALL')) {
     .iyakise-2025{
         background:transparent !important;
     }
+
+    @media (max-width: 768px){
+            .db-iconsWrap svg{
+                font-size: 1.5rem;
+
+            }
+
+            .db-title h6{
+                font-size: .8rem;
+            }
+    }
 </style>
 
 <?php
@@ -61,7 +72,7 @@ if(isset($_GET['action']) && !empty($_GET['action'])){
                         <i class="fas fa-money-check fa-3x"></i>
                     </div>
                     <div class="db-title" title="WELFARE CONTRIBUTIONS">
-                        <h6>WELFARE: &#8358; <?php echo __mpc_getMember_balance__($conn, $uidId, $uidPhone, 'mpc_welfare_contribution', 'welfare_mem_id', 'welfare_mem_phone')[2]?></h6>
+                        <h6>WELFARE: &#8358; <?php //echo __mpc_getMember_balance__($conn, $uidId, $uidPhone, 'mpc_welfare_contribution', 'welfare_mem_id', 'welfare_mem_phone')[2]?></h6>
                         
                     </div>
                 </div> -->
@@ -252,7 +263,7 @@ if(isset($_GET['action']) && !empty($_GET['action'])){
 
                 try{
                     let db_balance = await api.getSingleBalance(id, ph);
-                    console.log(db_balance);
+                    // console.log(db_balance);
                     api.selector('.sharesBalance').innerText = db_balance.data.shares_balance.toFixed(2);
                     api.selector('.thriftBalance').innerText = db_balance.data.thrift_saving_balance.toFixed(2);
                     api.selector('.specialBalance').innerText = db_balance.data.special_saving_balance.toFixed(2);
@@ -388,10 +399,10 @@ if(isset($_GET['action']) && !empty($_GET['action'])){
                 var updater = document.querySelector('.__xcessData');
                 import * as api from "../script/api.js";
                 
-                let ddata = await api.getLoanTransaction(__mpc_uri__(), id, ph);
-
-                    if(ddata.data.current_balance !== null){
-                        updater.innerHTML = ddata.data.current_balance;
+                let ddata = await api.dboardLoan(id, ph);
+                // console.log(ddata); 
+                    if(ddata.status !== false){
+                        updater.innerHTML = `&#8358;${ddata.current_balance.toFixed(2)}`;
                     }else{
                         updater.innerHTML = '0.00';
                     }
@@ -681,6 +692,248 @@ let disabledInput = document.querySelectorAll('.mpc-disabled');
         ele.title = __mpc_companyName__() + ' DO WANT YOU TO PERFORM THIS ACTION ANYMORE, THANK YOU FOR YOUR UNDERSTANDING!';
     })
             </script>
+        <?php
+    }else if($_GET['action'] === 'Dues'){
+        
+        ?>
+        <i class="mpcMsg"> <?php print getSystemName($conn)[1]?> Members Dues</i>
+        <hr class="mpcHr">
+
+        <div class="member-dues-wrapper">
+
+  <!-- Header -->
+  <div class="member-header">
+    <h2 style="color: var(--bs-dark)">My Dues Summary</h2>
+    <p>All charges applied to your account</p>
+  </div>
+
+  <!-- Member Info -->
+  <div class="member-info-card">
+    <div>
+      <p><strong>Name:</strong> <span class="name">John Doe</span></p>
+      <p><strong>Member ID:</strong> <span class="member-id">MPC-1023</span></p>
+      <p><strong>Phone:</strong> <span class="phone">08031234567</span></p>
+    </div>
+
+    <div class="dues-total">
+      <span>Total Dues Charged</span>
+      <h1 class="totalAmountCharge">₦28,000.00</h1>
+    </div>
+  </div>
+
+  <!-- Balance -->
+  <div class="balance-card">
+    <span>Current Special Savings Balance</span>
+    <h2 class="specialBalance">₦150,000.00</h2>
+  </div>
+
+  <!-- Dues History -->
+  <div class="dues-history-card">
+    <h3 style="color: var(--bs-dark)">Dues History</h3>
+
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Amount</th>
+          <th>Reason</th>
+          <th>Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>1</td>
+          <td class="negative">₦5,000</td>
+          <td>Late monthly contribution</td>
+          <td>20 Sep 2025</td>
+        </tr>
+        <tr>
+          <td>2</td>
+          <td class="negative">₦3,000</td>
+          <td>Penalty</td>
+          <td>18 Sep 2025</td>
+        </tr>
+        <tr>
+          <td>3</td>
+          <td class="negative">₦20,000</td>
+          <td>Loan default charge</td>
+          <td>01 Sep 2025</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+    <script type="module">
+
+    import * as api from "../script/api.js";
+    const id = "<?=$uidId?>";
+    const ph = "<?=$uidPhone?>";
+
+    let duesData = await api.getMemberDues(id, ph);
+        // console.log(duesData);
+    // console.log(duesData);
+    let nameEl = api.selector('.name');
+    let memberIdEl = api.selector('.member-id');
+    let phoneEl = api.selector('.phone');
+    let totalAmountChargeEl = api.selector('.totalAmountCharge');
+    let duesHistoryTbody = api.selector('.dues-history-card tbody');
+    let specialBalanceEl = api.selector('.specialBalance');
+
+    //check if status from api is true
+    if(duesData.status !== false){
+        let data = duesData.member;
+
+        nameEl.innerText = data.name;
+        memberIdEl.innerText = data.id;
+        phoneEl.innerText = data.phone;
+        totalAmountChargeEl.innerText = `₦${duesData.total_dues.toFixed(2)}`;
+        specialBalanceEl.innerText = `₦${data.special_balance.toFixed(2)}`;
+        // console.log(duesData.special_balance);
+
+        //populate dues history
+        duesHistoryTbody.innerHTML = ''; //clear existing rows
+        duesData.recent_dues.forEach((due, index) => {
+            let row = document.createElement('tr');
+                row.style.color = 'var(--bs-dark)';
+            row.innerHTML = `
+                <td>${index + 1}</td>
+                <td class="negative">₦${due.amount.toFixed(2)}</td>
+                <td>${due.reason}</td>
+                <td>${due.date}</td>
+            `;
+            duesHistoryTbody.appendChild(row);
+        });
+
+    }else{
+        api.showToast('No dues data found for your account.');
+    }
+
+
+    </script>
+
+
+</div>
+<style>
+* {
+  box-sizing: border-box;
+  font-family: "Segoe UI", sans-serif;
+}
+
+body {
+  background: #f5f7fb;
+}
+
+.member-dues-wrapper {
+  max-width: 1000px;
+  margin: 30px auto;
+  display: grid;
+  gap: 22px;
+}
+
+/* Header */
+.member-header h2 {
+  margin-bottom: 5px;
+}
+
+.member-header p {
+  color: #666;
+}
+
+/* Member Info */
+.member-info-card {
+  background: #fff;
+  padding: 22px;
+  border-radius: 10px;
+  display: flex;
+  justify-content: space-between;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+
+.member-info-card p {
+  margin: 5px 0;
+}
+
+.dues-total {
+  text-align: right;
+}
+
+.dues-total span {
+  font-size: 14px;
+  color: #888;
+}
+
+.dues-total h1 {
+  color: #c0392b;
+  margin-top: 6px;
+}
+
+/* Balance */
+.balance-card {
+  background: #eafaf1;
+  padding: 18px 22px;
+  border-radius: 10px;
+}
+
+.balance-card span {
+  font-size: 14px;
+  color: #555;
+}
+
+.balance-card h2 {
+  margin-top: 5px;
+  color: #0a7c4a;
+}
+
+/* History */
+.dues-history-card {
+  background: #fff;
+  padding: 22px;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+
+.dues-history-card h3 {
+  margin-bottom: 15px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+thead {
+  background: #f2f4f8;
+}
+
+th, td {
+  padding: 14px;
+  border-bottom: 1px solid #eee;
+}
+
+th {
+  text-align: left;
+  font-size: 14px;
+}
+
+td {
+  font-size: 14px;
+}
+
+.negative {
+  color: #c0392b;
+  font-weight: 600;
+}
+
+
+
+
+</style>
+
+
+
+
+
+
         <?php
     }else if($_GET['action'] === 'MyNotifications'){
         ?>
@@ -1092,8 +1345,9 @@ if(isset($_GET['Read']) && !empty($_GET['Read']) && $_GET['Read'] == 'readSingle
                 <script>
                                         let Name = "<?php echo $uidName?>";
                     let txt = "<?php echo __mpcReturnByPhoneMember($conn, $uidPhone)[21]?>";
+                    let memberDob = "<?php echo __mpcReturnByPhoneMember($conn, $uidPhone)[3]?>";
                     let splt = txt.split('/');
-                   
+                   console.log(txt);
                     let day = splt[0];
                     let month = splt[1];
                     let year = splt[2];
@@ -1104,6 +1358,58 @@ if(isset($_GET['Read']) && !empty($_GET['Read']) && $_GET['Read'] == 'readSingle
                     let rxtx = document.querySelector('.rtnifdueforretirement');
 
 
+                function checkRetirementStatus(dateOfAppointment, dateOfBirth) {
+                    // Parse DD/MM/YYYY
+                    const parseDate = (str) => {
+                        const [day, month, year] = str.split('/').map(Number);
+                        return new Date(year, month - 1, day);
+                    };
+
+                    const appointmentDate = parseDate(dateOfAppointment);
+                    const birthDate = parseDate(dateOfBirth);
+                    const today = new Date();
+
+                    // Calculate years worked
+                    let yearsWorked = today.getFullYear() - appointmentDate.getFullYear();
+                    if (
+                        today.getMonth() < appointmentDate.getMonth() ||
+                        (today.getMonth() === appointmentDate.getMonth() && today.getDate() < appointmentDate.getDate())
+                    ) {
+                        yearsWorked--;
+                    }
+
+                    // Calculate age
+                    let age = today.getFullYear() - birthDate.getFullYear();
+                    if (
+                        today.getMonth() < birthDate.getMonth() ||
+                        (today.getMonth() === birthDate.getMonth() && today.getDate() < birthDate.getDate())
+                    ) {
+                        age--;
+                    }
+
+                    // Retirement checks
+                    const retiredByService = yearsWorked >= 35;
+                    const retiredByAge = age >= 60;
+
+                    if (retiredByService || retiredByAge) {
+                        return {
+                            retired: true,
+                            yearsWorked,
+                            age,
+                            reason: retiredByService ? "35 years of service reached" : "60 years of age reached"
+                        };
+                    }
+
+                    return {
+                        retired: false,
+                        yearsWorked,
+                        age,
+                        yearsRemaining: Math.min(35 - yearsWorked, 60 - age)
+                    };
+                }
+
+
+                let RetireStatus = checkRetirementStatus(txt, memberDob);
                     /** ------------------------------------------------------------------------------------------------
                      *                                                                                                 |
                      *                                                                                                 |
@@ -1117,14 +1423,23 @@ if(isset($_GET['Read']) && !empty($_GET['Read']) && $_GET['Read'] == 'readSingle
                      *------------------------------------------------------------------------------------------------- 
                     **/
                     let dateworkFor = calculateTotalYearsOfWork(dateOfAppointment, dateOfRetirement);
-                    document.querySelector('.numberof').innerHTML = dateworkFor;
-                    if(returnOnlyYearsWorkedFor(dateOfAppointment, dateOfRetirement) >= 10){
+                    document.querySelector('.numberof').innerHTML = `You are <strong>${RetireStatus.age}</strong> years old, worked for <strong>${RetireStatus.yearsWorked} years so far.`;
+                 console.log(RetireStatus);
+
+                    if(RetireStatus.retired){
                         rxtx.innerHTML = Name + ' You are due for retirement, it has been a great Journey!';
                         rxtx.classList.add('alert-danger');
                     }else {
-                        rxtx.innerHTML = Name + ` you are not yet due for retirement, You still have  ${45 -returnOnlyYearsWorkedFor(dateOfAppointment, dateOfRetirement)} years to work` ;
+                        rxtx.innerHTML = Name + ` you are not yet due for retirement, You still have  ${RetireStatus.yearsRemaining} years to work` ;
                         rxtx.classList.add('alert-success');
                     }
+                    // if(returnOnlyYearsWorkedFor(dateOfAppointment, dateOfRetirement) >= 10){
+                    //     rxtx.innerHTML = Name + ' You are due for retirement, it has been a great Journey!';
+                    //     rxtx.classList.add('alert-danger');
+                    // }else {
+                    //     rxtx.innerHTML = Name + ` you are not yet due for retirement, You still have  ${45 -returnOnlyYearsWorkedFor(dateOfAppointment, dateOfRetirement)} years to work` ;
+                    //     rxtx.classList.add('alert-success');
+                    // }
 
                 </script>
               <?php  
@@ -1622,6 +1937,8 @@ $system = getSystemName($conn)[1];
         <div><span>Total Payable:</span> <strong id="total_payable">₦0</strong></div>
         <div><span>Monthly Payment:</span> <strong id="monthly_payment">₦0</strong></div>
         <div><span>Due Date:</span> <strong id="due_date">---</strong></div>
+        <div><span>Total in Thrift, Shares, Special:</span> <strong id="total3">---</strong></div>
+        <div><span>Max Loan Limit:</span> <strong id="limit">---</strong></div>
     </div>
 
     <button class="btn mpc-btn btn-success btn-active mt-1 mb-1 m-auto w-100 _g_go_">Request for Loan</button>
@@ -1635,7 +1952,14 @@ $system = getSystemName($conn)[1];
 
     const reqLoanBtn = api.selector('._g_go_');
     const specialbtn = api.selector('._what_is_special_');
+    const membBalance= await api.getmembersBalanceAll("<?=$uidId?>","<?=$uidPhone?>");
+    window.memberbalance = membBalance;
+    window.showToast = api.showToast;
 
+    api.selector('#total3').innerHTML = `₦${membBalance.total_balance}`;
+    api.selector('#limit').innerHTML = `₦${membBalance.loan_limit}`;
+
+    // console.log('Member balance:', membBalance);
         //checking loan status for member using tracking id
     const trackLoanBtn = api.selector('._track_loan_');
     if(trackLoanBtn){
@@ -1647,6 +1971,7 @@ $system = getSystemName($conn)[1];
                 api.showToast("Please enter a valid Tracking ID");
                 return;
             }
+
 
             const loanData = await api.trackLoanRequest("<?=__mpc_root__()?>", trackingId);
             if(loanData.status === 'success'){
@@ -1665,7 +1990,7 @@ $system = getSystemName($conn)[1];
     }
 
         reqLoanBtn.addEventListener('click', async function(){
-            let loanAmount  = api.selector("#loan_amount").value;
+            let loanAmount  = api.selector("#loan_amount")?.value;
             let duration    = api.selector("#months").value;
             let trackcode   = api.selector('.trackingCode');
 
@@ -1688,6 +2013,13 @@ $system = getSystemName($conn)[1];
                 api.showToast('Calculate loan details before proceeding');
                 return;
             }
+
+//check if loan amount is within limit
+            if(parseFloat(loanAmount) > parseFloat(membBalance.loan_limit)){
+                api.showToast('Requested loan amount exceeds your maximum loan limit: Your limit is ₦' + membBalance.loan_limit);
+                return;
+            }
+
             let calcData = JSON.parse(localStorage.getItem('_mpc_loan_calculator_'));
 
             const data = {
@@ -1803,6 +2135,18 @@ $system = getSystemName($conn)[1];
                     //     api.showToast('Enter valid amount', 3000, 'error');
                     //     return;
                     // }
+                    if(!memberSpecialBalance.status || !('data' in memberSpecialBalance)){
+                        errRtn.innerHTML = 'Unable to get your special savings balance, refresh page and try again!';
+                        api.showToast('Unable to get your special savings balance, refresh page and try again!', 3000, 'error');
+                        return;
+                    }
+
+                    //check if member is requesting less than 20k
+                    if(amount < 20000){
+                        errRtn.innerHTML = 'Minimum special savings request is ₦20,000';
+                        api.showToast('Minimum special savings request is ₦20,000', 3000, 'error');
+                        return;
+                    }
 
                     if(amount > memberSpecialBalance.data.balance){
                         errRtn.innerHTML = 'Your Balance is too low, please fund wallet then try again!';
@@ -1900,6 +2244,17 @@ loan_reason
             let interest = amount * 0.01 * duration;
             let total = amount + interest;
             let monthly = total / duration;
+
+            console.log(window.memberbalance);
+            if(!window.memberbalance){
+                window.showToast('Unable to get member balance data, refresh page and try again', 5000, 'error');
+                return;
+            }
+
+            if(total > window.memberbalance.loan_limit){
+                window.showToast(`Loan request exceeds your maximum loan limit of ₦${window.memberbalance.loan_limit}`, 5000, 'error');
+                return;
+            }
 
             let key = {
                         interest: interest, 

@@ -48,7 +48,20 @@ try {
     $interest_paid = min($amount, $expected_monthly_interest);
     $principal_paid = $amount - $interest_paid;
 
-    $new_balance = $old_balance - $principal_paid;
+    // $new_balance = $old_balance - $principal_paid;
+    $old_balance = $loan['total_payable'];
+
+/* Interest / principal split stays for record */
+$principal_per_month = ($loan['loan_amount'] / $loan['duration_months']);
+$expected_monthly_interest = $loan['monthly_payment'] - $principal_per_month;
+$expected_monthly_interest = max($expected_monthly_interest, 0);
+
+$interest_paid  = min($amount, $expected_monthly_interest);
+$principal_paid = $amount - $interest_paid;
+
+/* ✅ FIX: balance reduces by FULL payment */
+$new_balance = $old_balance - $amount;
+
 
     /** 3. Insert repayment record */
     $insert = $conn->prepare("

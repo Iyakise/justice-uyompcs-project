@@ -55,6 +55,8 @@ if(isset($_GET['action']) && !empty($_GET['action'])) {
             color:red;
         }
 
+        
+        
     </style>
     <?php
     if($_GET['action'] == 'addClient') {
@@ -400,6 +402,7 @@ if(isset($_GET['action']) && !empty($_GET['action'])) {
         }else {
             if($_GET['action'] == 'dTransactions') {
                 ?>
+
                 <i class="mpc-admMsg">Deposit Transaction</i><br><br>
                 <hr class="mpcHr">
                 <div class="mpc-deposit-transaction">
@@ -476,151 +479,448 @@ if(isset($_GET['action']) && !empty($_GET['action'])) {
             }else {
                 if($_GET['action'] == 'accounting') {
                     ?>
-                    <i class="mpc-admMsg">Accounting</i><br><br>
+                    <i class="mpc-admMsg">Dues</i><br><br>
                     <hr class="mpcHr">
                     <div class="mpc-Accounting-wrap">
-                        <h6><?php echo $fn .' '. $ln?>, <?php echo getSystemName($conn)[1]?> Disburse <span class="HighLight disbursement-restyle"> &#8358; <span class="disbursment"><?php echo __totalMoneyPaidOut__($conn)?></span> this month <?php print date('F')?></span></h6>
-                        <div class="mpc-accounting-wrapp">
-                            <select class="mpc-selectAccounting adm-select createLoanInput">
-                                <option value="">-----</option>
-                                <option value="Regular">Regular</option>
-                                <option value="Group">Group</option>
-                            </select>
-                            <input type="search" class="setStyle createLoanInput mpcs-searchMonth" placeholder="Enter month (<?php echo date('F')?>)">
-                        </div>
+                        <h6><?php echo $fn .' '. $ln?>, <?php echo getSystemName($conn)[1]?> Screen for Monthly Dues</h6>
+                        
+<style>
+    /* Container */
+.dues-container {
+    max-width: 900px;
+    margin: 40px auto;
+    padding: 20px;
+    font-family: 'Segoe UI', sans-serif;
+}
 
-                    <div class="mpc-document-print">
-                        <div class="mpc-account-made responsReturn mpc-monthly-disbursement">
-                            <div class="accout-sec-one group-mpc table-responsive">
-                            <table class="table table-border table-hover table-striped">
-                                <thead>
-                                    <tr>
-                                        <th>#</th>
-                                        <th>Name</th>
-                                        <th>Profile</th>
-                                        <th>Amount</th>
-                                    </tr>
-                                    </thead>
+/* Title */
+.page-title {
+    font-size: 24px;
+    margin-bottom: 25px;
+    color: #1f2937;
+}
 
-                                    <?php __mpc_loanDisbursementMonthly__($conn, 'group', date('F'))?>
-                                </table>
-                            </div>
+/* Card */
+.card {
+    background: #ffffff;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
 
-                            <div class="accout-sec-one regular-mpc table-responsive">
-                                <table class="table table-border table-hover table-striped">
-                                    <thead>
-                                        <tr>
-                                            <th>#</th>
-                                            <th>Name</th>
-                                            <th>Profile</th>
-                                            <th>Amount</th>
-                                        </tr>
-                                    </thead>
+/* Headings */
+.card h3 {
+    margin-bottom: 15px;
+    color: #111827;
+}
 
-                                    <?php __mpc_loanDisbursementMonthly__($conn, 'regular', date('F'))?>
-                                </table>
-                            </div>
-                        </div>
+/* Forms */
+.form-row {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.form-group {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group label {
+    font-size: 13px;
+    margin-bottom: 6px;
+    color: #6b7280;
+}
+
+.form-group input {
+    padding: 10px 12px;
+    border-radius: 6px;
+    border: 1px solid #d1d5db;
+    font-size: 14px;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: #2563eb;
+}
+
+/* Buttons */
+button {
+    margin-top: 15px;
+    padding: 10px 18px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.btn-primary {
+    background: #2563eb;
+    color: #fff;
+}
+
+.btn-primary:hover {
+    background: #1d4ed8;
+}
+
+.btn-danger {
+    background: #dc2626;
+    color: #fff;
+}
+
+.btn-danger:hover {
+    background: #b91c1c;
+}
+
+/* Member Info */
+.member-info .info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+}
+
+.member-info span {
+    display: block;
+    font-size: 12px;
+    color: #6b7280;
+}
+
+.member-info strong {
+    font-size: 15px;
+    color: #111827;
+}
+
+.dues-amount {
+    color: #dc2626;
+    font-size: 18px;
+}
+
+/* Card Header */
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+/* Permission Badge */
+.badge {
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.badge-admin {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+/* Table Wrapper */
+.table-wrapper {
+    overflow-x: auto;
+}
+
+/* History Table */
+.history-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    color: #374151;
+}
+
+.history-table thead {
+    background: #f9fafb;
+}
+
+.history-table th,
+.history-table td {
+    padding: 12px 10px;
+    text-align: left;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.history-table th {
+    font-weight: 600;
+    color: #374151;
+}
+
+.history-table tbody tr:hover {
+    background: #f3f4f6;
+}
+
+/* Amount Styling */
+.amount-negative {
+    color: #dc2626;
+    font-weight: 600;
+}
+
+</style>
+                        <!-- ADMIN DUES CARD -->
+<div class="dues-container">
+
+    <h2 class="page-title">Member Dues Management</h2>
+
+    <!-- Search Member -->
+    <div class="card">
+        <h3>Find Member</h3>
+
+        <div class="form-row">
+            <!-- <div class="form-group">
+                <label>Member ID</label>
+                <input type="text" placeholder="Enter member ID">
+            </div> -->
+
+            <div class="form-group">
+                <label>Phone, ID, Name</label>
+                <input type="text" placeholder="Enter phone, Staff ID, or name" id="mpc-memberSearchInput">
+            </div>
+        </div>
+
+        <button class="btn-primary _qry_">Search Member</button>
+    </div>
+
+    <!-- Member Info -->
+    <div class="card member-info">
+        <h3>Member Details</h3>
+
+        <div class="info-grid">
+            <div>
+                <span>Name</span>
+                <strong id="member-name"></strong>
+            </div>
+            <div>
+                <span>Member ID</span>
+                <strong id="member-id">#0</strong>
+            </div>
+            <div>
+                <span>Phone</span>
+                <strong id="member-phone">0803xxxxxxx</strong>
+            </div>
+            <div>
+                <span>Total Special Balance</span>
+                <strong class="dues-amount">₦0</strong>
+            </div>
+        </div>
+    </div>
+
+    <!-- Deduct Dues -->
+    <div class="card">
+        <h3>Deduct Dues</h3>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label>Amount</label>
+                <input type="number" placeholder="Enter amount" class="_amount_">
+            </div>
+
+            <div class="form-group">
+                <label>Reason (optional)</label>
+                <input type="text" placeholder="e.g. Late repayment" class="_reason_">
+            </div>
+        </div>
+
+        <button class="btn-danger _deduction_">Deduct Dues</button>
+    </div>
+
+</div>
+
+<!-- history -->
+ <!-- Transaction History -->
+<div class="card">
+    <div class="card-header">
+        <h3>Dues Transaction History</h3>
+
+        <!-- Permission Badge -->
+        <span class="badge badge-admin">Admin Only</span>
+    </div>
+
+    <div class="table-wrapper">
+        <table class="history-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Date</th>
+                    <th>Amount</th>
+                    <th>Reason</th>
+                    <th>Deducted By</th>
+                </tr>
+            </thead>
+            <tbody class="recent-dues-history">
+                <!-- <tr>
+                    <td>1</td>
+                    <td>12 Dec 2025</td>
+                    <td class="amount-negative">₦5,000</td>
+                    <td>Late loan repayment</td>
+                    <td>Admin A</td>
+                </tr>
+
+                <tr>
+                    <td>2</td>
+                    <td>05 Nov 2025</td>
+                    <td class="amount-negative">₦2,000</td>
+                    <td>Penalty</td>
+                    <td>Admin B</td>
+                </tr>
+
+                <tr>
+                    <td>3</td>
+                    <td>18 Oct 2025</td>
+                    <td class="amount-negative">₦10,000</td>
+                    <td>Outstanding dues</td>
+                    <td>Admin A</td>
+                </tr> -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
                     </div>
                         <button class="mpc-btn print-mpc-page" ><i class="fa-print fa-solid" style="color:orange;" title="PRINT PAGE"></i></button>
                         <button class="mpc-btn"><i class="fa-file-pdf fa-solid" title="TO PDF" style="color:orange;"></i></button>
+
+
                     </div>
-<script>
+<script type="module">
     __mpcPrinter__();
-    var MonthlyDisbursement, tompc
-        MonthlyDisbursement = document.querySelector('.disbursment').innerText;
 
-        tompc = MonthlyDisbursement.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-
-        document.querySelector('.disbursment').innerHTML = tompc;
+        import { fetchDataPost, selector, newPopup, showToast } from '../../script/api.js';
 
 
-//loading
-var moneyGroup = document.querySelectorAll('.amountEach');
-    
-    //loopthrough
-    moneyGroup.forEach(
-        money => {
-           var addGroup =  money.innerText.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        let searchBtn = selector('._qry_');
+        let inpt      = selector('#mpc-memberSearchInput');
+        let membername= selector('#member-name');
+        let memberid  = selector('#member-id');
+        let memberphone = selector('#member-phone');
+        let duesAmount  = selector('.dues-amount');
+        let deductBtn   = selector('._deduction_');
+        let recentDuesHistory = selector('.recent-dues-history');
 
-            money.innerHTML = addGroup;
-        }
-    )
-
-    var selectBygrouop = document.querySelector('.mpc-selectAccounting');
-        selectBygrouop.addEventListener('change', function(){
-            var a, b, c, d, e, f, g;
-                a = document.querySelector('.mpc-admin-ds-notify');
-
-            if(this.value === ''){
-                a.innerHTML = 'SELECT QUERY PARAMETER';
-                a.classList.add('to-red-color');
-                a.classList.add('fa-fade');
-
-            }else if(this.value === 'Regular'){
-                b = document.querySelector('.regular-mpc');
-
-                //PULLING DATA FROM DATABASE IS MUCH THEN LET DO TIS
-                __mpcShowAnimation__(); //show loading animation here
-                var xhr;
+            searchBtn.addEventListener('click', async (e) => {
+                e.preventDefault();
                 
-                xhr = new XMLHttpRequest();
-                xhr.open('GET', __mpc_uri__() + 'functions/mpc-ajax-action.php?PERM=mpcQueryLOad', true);
-                xhr.onreadystatechange = function(){
 
-                    // __mpcAnimaitonOff__(); //turn off aimation here
-                    if(this.status == 200 && this.readyState == 4){
-                       
-                        b.innerHTML = this.response;
+                searchBtn.innerHTML = '<i class="fas fa-spin fa-spinner"></i> Please wait...';
+                searchBtn.disabled = true;
 
-                        __amountGroup__(); //group by each 100,00 e.g 100,000.23
-                    }
-                    
+                if(inpt?.value === ''){
+                    showToast('Enter member Staff ID, Phone, Name', 'error');
+                    searchBtn.disabled = false;
+                    searchBtn.innerHTML = 'Search Member';
+                    inpt.focus();
+                    return;
                 }
-                xhr.send();
 
-                __mpcAnimaitonOff__(); ///animation turn off
+                let data = {
+                    query: inpt?.value ?? null,
+                  
+                };
+                let dataFinder = await fetchDataPost(__mpc_uri__(), 'searchmember', data);
 
-            }else if(this.value === 'Group'){
-                c = document.querySelector('.group-mpc');
+                console.log(dataFinder);
 
-                //PULLING DATA FROM DATABASE IS MUCH THEN LET DO TIS
-                __mpcShowAnimation__(); //show loading animation here
-                var xhr;
-                xhr = new XMLHttpRequest();
-                xhr.open('GET', __mpc_uri__() + 'functions/mpc-ajax-action.php?PERM=MPCgroupLOANdISBURSE', true);
-                xhr.onreadystatechange = function(){
-                    //turn off animation here
-                    __mpcAnimaitonOff__(); ///animation turn off
-                    if(this.readyState == 4 && this.status == 200){
-                        c.innerHTML = this.response;
-
-                        __amountGroup__(); //group amount by each 100,00 e.g 100,000.23
-                    }
+                if(!dataFinder.status){
+                    showToast(dataFinder.message || 'Unexpected Error', 'error');
+                    searchBtn.disabled = false;
+                    searchBtn.innerHTML = 'Search Member';
+                    inpt.focus();
+                    return;
                 }
-                xhr.send();
-                
+
+               // showToast(dataFinder.message);
+                membername.innerText = dataFinder.member.name;
+                memberid.innerText   = '#' + dataFinder.member.registration_number;
+                memberphone.innerText= dataFinder.member.phone;
+                duesAmount.innerText = '₦' + parseFloat(dataFinder.special_balance).toLocaleString();
+
+                //set member id and phone as attribute in the deduction button
+                deductBtn.setAttribute('data-member-id', dataFinder.member.members_id);
+                deductBtn.setAttribute('data-member-phone', dataFinder.member.phone);
+
+                searchBtn.disabled = false;
+                searchBtn.innerHTML = 'Search Member';
+                showToast('Member found');
+
+                if(dataFinder.recent_dues && dataFinder.recent_dues.length > 0){
+                    recentDuesHistory.innerHTML = ''; //clear previous data
+
+                    dataFinder.recent_dues.forEach((dues, index) => {
+                        let row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${index + 1}</td>
+                            <td>${new Date(dues.created_at).toLocaleDateString()}</td>
+                            <td class="amount-negative">₦${parseFloat(dues.amount).toLocaleString()}</td>
+                            <td>${dues.reason || 'N/A'}</td>
+                            <td>${dues.admin_name || 'Admin'}</td>
+                        `;
+                        recentDuesHistory.appendChild(row);
+                    });
+
+
+            }else{
+                recentDuesHistory.innerHTML = '<tr><td colspan="5">No recent dues transactions found.</td></tr>';
             }
+
+            });
+
+
+
+        //add event to deductionbtn
+        deductBtn.addEventListener('click', async (e) => {
+            e.preventDefault();
+
+            const memberId = deductBtn.getAttribute('data-member-id');
+            const memberPh = deductBtn.getAttribute('data-member-phone');
+            const amount   = selector('._amount_');
+            const reason   = selector('._reason_');
+
+            if(memberId === null){
+                return showToast('Member credentials is missing(ID), try again or contact developer');
+            }
+
+            if(memberPh === null){
+                return showToast('Member credentials is missing(phone), try again or contact developer');
+            }
+
+            if(amount?.value === ''){
+                return showToast('Enter valid deducted amount');
+            }
+
+            if(reason?.value === ''){
+                return showToast('Enter valid deducted amount');
+            }
+
+            deductBtn.disabled = true;
+            deductBtn.innerHTML = '<i class="fas fa-spin fa-spinner"></i> Please wait...';
+
+            let req = {
+                member_id: memberId,
+                member_phone: memberPh,
+                amount: amount?.value ?? null,
+                reason: reason?.value ?? null
+            };
+            let deductionRequest = await fetchDataPost(__mpc_uri__(), 'findr.deduct.dues', req);
+
+                if(deductionRequest.status === false){
+                    showToast(deductionRequest.message || 'Unexpected error occurred', 'error');
+                    deductBtn.disabled = false;
+                    deductBtn.innerHTML = 'Deduct Dues';
+                    return;
+                }
+
+                showToast(deductionRequest.message || 'Dues deducted successfully');
+                duesAmount.innerText = '₦' + parseFloat(deductionRequest.remaining_balance).toLocaleString();
+                amount.value = '';
+                reason.value = '';
+                deductBtn.disabled = false;
+                deductBtn.innerHTML = 'Deduct Dues';
+            console.log(deductionRequest);
+
         })
 
-
-//search by month name start here
-let mpcsSearchByMonth = document.querySelector('.mpcs-searchMonth');
-    mpcsSearchByMonth.addEventListener('input', function(){
-        
-        var xhr, responseReturn;
-            responseReturn = document.querySelector('.mpc-monthly-disbursement');
-            xhr = new XMLHttpRequest();
-            xhr.open('GET', __mpc_uri__() + 'functions/mpc-ajax-action.php?PERM=disbursementMonth&monthname=' + this.value, true);
-            xhr.onreadystatechange = function(){
-                if(this.readyState == 4 && this.status == 200){
-                    responseReturn.innerHTML = this.responseText;
-
-                    __amountGroup__(); //group return amount 3 after first hundred add comma (100,000),
-                }
-            }
-            xhr.send();
-    })
 </script>        
                     <?php
                     
@@ -1484,7 +1784,16 @@ moreInfo.forEach(button => {
             // duration_months
             let req = await getSingleLoanRequest(loanId);
             let dwrap = document.querySelector('.popContentWrap');
+            let lstTransaction = 'N/A';
             // Add modal HTML
+            console.log(req);
+
+            if(req?.special_savings?.credit > 0){
+                lstTransaction = `₦${Number(req?.special_savings?.credit)}`;
+            }else{
+                lstTransaction = `${req.special_savings?.debit > 0 ? '₦' + Number(req?.special_savings?.debit) : 'N/A'}`;
+            }
+
             dwrap.innerHTML = `
                 
                 <h2 class="loan-header">${user} Loan Transaction Information</h2>
@@ -1517,10 +1826,10 @@ moreInfo.forEach(button => {
                     <div class="loan-section">
                         <h3>Payment Breakdown</h3>
                         <div class="loan-row">
-                            <p><strong>Total Payable:</strong> ${req.data.loan_type === 'special' ? 'N/A' : '₦' + Number(req.data.total_payable).toLocaleString()}</p>
-                            <p><strong>Repayment Frequency:</strong>${req.data.loan_type === 'special' ? 'N/A' : req.data.repayment_frequency}</p>
-                            <p><strong>Monthly Payment:</strong>${req.data.loan_type === 'special' ? 'N/A' : '₦' + Number(req.data.monthly_payment).toLocaleString()}</p>
-                            <p><strong>Due Date:</strong> ${req.data.loan_type === 'special' ? 'N/A' : req.data.due_date}</p>
+                            <p><strong>Total Payable:</strong> ${req?.data?.loan_type === 'special' ? 'N/A' : '₦' + Number(req.data.total_payable).toLocaleString()}</p>
+                            <p><strong>Repayment Frequency:</strong>${req?.data?.loan_type === 'special' ? 'N/A' : req.data.repayment_frequency}</p>
+                            <p><strong>Monthly Payment:</strong>${req?.data?.loan_type === 'special' ? 'N/A' : '₦' + Number(req.data.monthly_payment).toLocaleString()}</p>
+                            <p><strong>Due Date:</strong> ${req?.data?.loan_type === 'special' ? 'N/A' : req.data.due_date}</p>
                         </div>
                     </div>
 
@@ -1528,7 +1837,7 @@ moreInfo.forEach(button => {
                         <!-- Additional sections can be added here -->
                         <h3>Special Savings Information</h3>
                         <p><strong>Special Savings Balance:</strong> ₦${Number(req?.special_savings?.balance).toLocaleString()}</p>
-                        <p><strong>Last Transaction:</strong> ₦${Number(req?.special_savings?.credit).toLocaleString()} on ${req?.special_savings?.date_time}</p>
+                        <p><strong>Last Transaction:</strong> ${lstTransaction} on ${req?.special_savings?.date_time}</p>
                     </div>
 
                     <div class="loan-actions">
@@ -6038,6 +6347,7 @@ var popUpClose = document.querySelectorAll('.close-mpc-popup');
                         <td>Date Appointed</td>
                         <td>Years worked</td>
                         <td>Yrs. Remaining</td>
+                        <td>Age</td>
                         <td>Status</td>
                         <!-- <td>Name</td> -->
                     </tr>
@@ -6067,6 +6377,10 @@ var popUpClose = document.querySelectorAll('.close-mpc-popup');
 </script>
     </div>
 <?php
+
+
+
+
 }else if($_GET['action'] == 'moveFunds'){
 ?>
 <style>

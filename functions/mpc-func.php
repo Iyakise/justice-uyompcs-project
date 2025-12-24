@@ -355,10 +355,10 @@ function __Adm__($prev){
 		$d = 'DEVELOPER';
 		return $d;
 	}else if($prev == 5){
-		$d = 'SECRETARY';
+		$d = 'MEMBER';
 		return $d;
 	}else{
-		$d = 'MEMBER';
+		$d = 'SECRETARY';
 		return $d;
 	}
 }
@@ -702,7 +702,31 @@ function __mpcReturnByPhoneMember($conn, $phone){
 
 
 //it return 18 items in the array starting from index 0
-$rtn = [$data['members_id'], $data['title'], $data['sex'], $data['date_of_birth'], $data['name'], $data['phone'], $data['contact_addr'], $data['place_of_birth'], $data['email'],  $data['occupation'], $data['registration_number'], $data['groups'], $data['registration_date'],  $data['status'], $data['v_ph'], $data['v_em'], $data['branch'], $data['mem_pwd'], $data['user_profile'], $data['permanent_addr'], $data['lga'], $data['religion'], $data['business_addr'], $data['church'], $data['declaration']];
+$rtn = [$data['members_id'], 
+		$data['title'], 
+		$data['sex'], 
+		$data['date_of_birth'], 
+		$data['name'], 
+		$data['phone'], 
+		$data['contact_addr'], 
+		$data['place_of_birth'], 
+		$data['email'],  
+		$data['occupation'], 
+		$data['registration_number'], 
+		$data['groups'], 
+		$data['registration_date'],  
+		$data['status'], 
+		$data['v_ph'], 
+		$data['v_em'], 
+		$data['branch'], 
+		$data['mem_pwd'], 
+		$data['user_profile'], 
+		$data['permanent_addr'], 
+		$data['lga'], 
+		$data['religion'], 
+		$data['business_addr'], 
+		$data['church'], 
+		$data['declaration']];
 
 	return $rtn;
 	mysqli_stmt_close($stmt);
@@ -3623,35 +3647,66 @@ function __checkAllForRetirement($conn){
 		echo "<tr><td>No data found</td><caption>Member due for Retirment</caption></tr>";
 	}else{
 		while ($data = $stmt->fetch_assoc()) {
-			$yrsToServed = 30;
+			$yrsToServed = 35;
 			$dte = date_create_from_format('d/m/Y', $data['religion']);
 			
 // 			calculateYears($data['religion']);
+		$wrking = checkRetirementStatus($data['religion'], $data['date_of_birth']);
 
 	if($dte !== false){
 			$yrs = calculateYears($data['religion'])['yrs'];
 			$mnt = calculateYears($data['religion'])['mnt'];
 			$dys = calculateYears($data['religion'])['dys'];
-			$hrs = calculateYears($data['religion'])['hrs'];
-			$mins = calculateYears($data['religion'])['mins'];
-			$sec = calculateYears($data['religion'])['sec'];
+			// $hrs = calculateYears($data['religion'])['hrs'];
+			// $mins = calculateYears($data['religion'])['mins'];
+			// $sec = calculateYears($data['religion'])['sec'];
 			// $yrs = calculateYears($data['religion'])['yrs'];
-		if($yrsToServed - $yrs  <= 0){
-			$tk = "Due for Retirment";
+
+
+
+//$wrking['retired'] === true
+		if(isset($wrking['retired'])){
+			
+			$yearsWorked = 'Worked for ' .$wrking['years_worked'] . ' Yrs';
+			$yearRemaining = isset($wrking['years_remaining']) ? $wrking['years_remaining'] : 0;
+		}else{
+			$tk = "Not Due for Retirment";
+			$cls = "alert-success";
+			$yearsWorked = 'Invalid birth date format ';
+			$yearRemaining = 'Not Validated';
+		}
+
+		// if($yrsToServed - $yrs  <= 0){
+		// 	$tk = "Due for Retirment";
+		// 	$cls = "alert-danger";
+		// }else{
+		// 	$tk = "Not Due for Retirment";
+		// 	$cls = "alert-success";
+		// }
+		if(isset($wrking['retired']) && $wrking['retired'] === true){
+			$tk = "Retired";
 			$cls = "alert-danger";
 		}else{
 			$tk = "Not Due for Retirment";
 			$cls = "alert-success";
 		}
 	}
+
+	if(isset($wrking['age'])){
+		$age = $wrking['age'];
+	}else{
+		$age = 'N/A';
+	}
+	
 ?>
 	<tr>
 		<td><?php echo $data['members_id']?></td>
 		<td><?php echo $data['name']?></td>
 		<td><img src="<?php echo __mpc_root__()?>asset/img/<?php echo $data['user_profile']?>" class="dboard-img" title="<?php echo $data['name']?>'s profile picture" role="image"></td>
 		<td><?php echo $data['religion']?></td>
-		<td><?php  print 'Worked for ' .$yrs .' years, '. $mnt .' Month '. $hrs .' hours, ' . $mins . ' minutes ' . $sec . ' Seconds'?></td>
-		<td><?php echo $yrsToServed - $yrs . ' Years'?></td>
+		<td><?php  print $yearsWorked ?></td>
+		<td><?php echo $yearRemaining . ' Yrs'?></td>
+		<td><?php echo $age . ' Yrs'?></td>
 		<td><span class="<?php echo $cls?> h-100 d-block p-1"><?php echo $tk?></span></td>
 
 
@@ -3661,12 +3716,66 @@ function __checkAllForRetirement($conn){
 	}
 }
 
-function calculateYears($startDates){
-// 	date_default_timezone_set('Africa/Lagos');
-// 	$dte = date('d/m/Y h:i:s');
+function checkRetirementStatus($dateOfAppointment, $dateOfBirth = null)
+{
+    date_default_timezone_set('Africa/Lagos');
+    $today = new DateTime();
 
-// 	$d1 = date_create_from_format("d/m/Y h:i:s", $dte);
-// 	$d2 = date_create_from_format("d/m/Y","$startDates");
+    // Helper: Parse dd/mm/yyyy
+    $parseDate = function ($date) {
+        return DateTime::createFromFormat('d/m/Y', $date);
+    };
+
+    $appointmentDate = $parseDate($dateOfAppointment);
+    if (!$appointmentDate) {
+        return ["error" => "Invalid appointment date format"];
+    }
+
+    // Years worked
+    $serviceInterval = $appointmentDate->diff($today);
+    $yearsWorked = $serviceInterval->y;
+
+    $retiredByService = $yearsWorked >= 35;
+
+    $age = null;
+    $retiredByAge = false;
+
+    if ($dateOfBirth) {
+        $birthDate = $parseDate($dateOfBirth);
+        if (!$birthDate) {
+            return ["error" => "Invalid birth date format"];
+        }
+
+        $ageInterval = $birthDate->diff($today);
+        $age = $ageInterval->y;
+        $retiredByAge = $age >= 60;
+    }
+
+    // Retirement decision
+    if ($retiredByService || $retiredByAge) {
+        return [
+            "retired" => true,
+            "years_worked" => $yearsWorked,
+            "age" => $age,
+            "reason" => $retiredByService
+                ? "35 years of service reached"
+                : "60 years of age reached"
+        ];
+    }
+
+    return [
+        "retired" => false,
+        "years_worked" => $yearsWorked,
+        "age" => $age,
+        "years_remaining" => $dateOfBirth
+            ? min(35 - $yearsWorked, 60 - $age)
+            : 35 - $yearsWorked
+    ];
+}
+
+
+function calculateYears($startDates){
+
 	date_default_timezone_set('Africa/Lagos');
 	$dte = date('d/m/Y h:i:s');
     $dateString = "$startDates";

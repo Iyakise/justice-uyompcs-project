@@ -105,21 +105,15 @@ if(!isset($_SESSION['MPC_ADMIN_LOGIN_SUPE_SESSION'])) {
                     </a>
                 </li>
 
-                <!-- <li>
+                <li>
                     <a href="<?php echo __mpc_root__()?>user/dashboard.php/?action=accounting&r=act" class="mpc-dsb-link">
-                        <i class="fas fa-pen-alt " title="ACCOUNTING"></i>
+                        <i class="fas fa-pen-alt " title="DUES"></i>
 
-                        <span class="nav-item">Accounting</span>
+                        <span class="nav-item">Dues</span>
                     </a>
-                </li> -->
+                </li>
 
-                <!--<li>-->
-                <!--    <a href="<?php //echo __mpc_root__()?>user/dashboard.php/?action=cSheet&r=client&rtn=cs" class="mpc-dsb-link">-->
-                <!--        <i class="fas fa-balance-scale" title="COLLECT SHEET"></i>-->
-
-                <!--        <span class="nav-item">Collect sheet</span>-->
-                <!--    </a>-->
-                <!--</li>-->
+                
 
                 <li>
                     <a href="<?php echo __mpc_root__()?>user/dashboard.php/?action=inputData&r=iData&rtn=id" class="mpc-dsb-link">
@@ -196,7 +190,7 @@ if(!isset($_SESSION['MPC_ADMIN_LOGIN_SUPE_SESSION'])) {
 
 
                 <li>
-                    <a href="<?php echo __mpc_root__()?>user/dashboard.php/?action=LogOut&v=true" class="mpc-dsb-link logout" style="position:absolute;">
+                    <a href="<?php echo __mpc_root__()?>user/dashboard.php/?action=LogOut&v=true" class="mpc-dsb-link logout" style="/*position:absolute;*/">
                         <i class="fa-sign-out-alt fas" title="LOGOUT SESSION"></i>
 
                         <span class="nav-item">Log out</span>
@@ -311,6 +305,8 @@ if(!isset($_SESSION['MPC_ADMIN_LOGIN_SUPE_SESSION'])) {
                 }else if($_GET['action'] === 'moveFunds' && $_GET['r'] == 'funds'){
                     require_once dirname(__DIR__) . '/functions/mpc-tools.php';
                 }else if($_GET['action'] === 'Bugsfixed' && $_GET['r'] == 'fbugs'){
+                    require_once dirname(__DIR__) . '/functions/mpc-tools.php';
+                }else if($_GET['action'] === 'Dues'){
                     require_once dirname(__DIR__) . '/functions/mpc-tools.php';
                 }
             }
