@@ -6,11 +6,12 @@ require __mpc_connection__ . "/config/conn.php";
 $input = json_decode(file_get_contents("php://input"), true);
 $tracking_code = $input['tracking_code'] ?? null;
 $admin_name    = $input['approved_by'] ?? null;
+$msg           = $input['reject_message'] ?? null;
 
-if (!$tracking_code || !$admin_name) {
+if (!$tracking_code || !$admin_name || !$msg) {
     echo json_encode([
         "status" => false,
-        "message" => "tracking_code and admin_name are required"
+        "message" => "tracking_code, Rejection Message and admin_name are required"
     ]);
     exit;
 }
@@ -30,11 +31,12 @@ if ($res1->num_rows > 0) {
 
     // Reject this normal loan
     $update = "UPDATE mpc_loans 
-               SET status = 'rejected', approved_by = ?, updated_at = NOW() 
+               SET status = 'rejected', approved_by = ?, message=?, updated_at = NOW() 
                WHERE id = ?";
 
     $stmtU = $conn->prepare($update);
-    $stmtU->bind_param("si", $admin_name, $loan_id);
+    $stmtU->bind_param("ssi", $admin_name, $msg, $loan_id);
+
 
     if ($stmtU->execute()) {
         echo json_encode([

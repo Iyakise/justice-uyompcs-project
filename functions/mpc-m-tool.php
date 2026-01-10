@@ -1922,14 +1922,11 @@ $system = getSystemName($conn)[1];
     <label>Duration (Months)</label>
     <select id="months">
         <option value="">Select...</option>
-        <option value="3">3 Months</option>
-        <option value="6">6 Months</option>
-        <option value="9">9 Months</option>
+        <option value="5">5 Months</option>
         <option value="10">10 Months</option>
-        <option value="12">12 Months</option>
-        <option value="18">18 Months</option>
+        <option value="15">12 Months</option>
         <option value="20">20 Months</option>
-        <option value="24">24 Months</option>
+        <option value="25">25 Months</option>
     </select>
 
     <div class="loan-results">
@@ -1977,7 +1974,7 @@ $system = getSystemName($conn)[1];
             if(loanData.status === 'success'){
                 let message = `Loan Found in ${loanData.source_table}:\n`;
                 for(const [key, value] of Object.entries(loanData.data)){
-                    message += `${key}: ${value}\n`;
+                    message += `${key}: <strong class="text-primary">${value}\n</strong>`;
                 }
                 api.newPopup('Loan Details', {width: '400px', height: 'auto', padding: '20px', background:'#000', color:'#fff'}, function(){
                     const contentWrap = document.querySelector('.popContentWrap');
@@ -2004,8 +2001,8 @@ $system = getSystemName($conn)[1];
                 return;
             }
 
-            if(duration > 24){
-                api.showToast('Maximum loan duration is 24 months');
+            if(duration > 25){
+                api.showToast('Maximum loan duration is 25 months');
                 return;
             }
 
@@ -2039,7 +2036,7 @@ $system = getSystemName($conn)[1];
             //proceed to send loan request
             let response = await api.requestLoan(__mpc_uri__(), data);
             // alert(response.message);
-            console.log(response);
+            // console.log(response);
             api.showToast(`${response.message}, Your tracking ID is ${response.tracking_code }`);
             if(response.status === 'success'){
                 trackcode.innerHTML = `Your tracking ID is: <strong>${response.tracking_code}</strong>`;
@@ -2052,6 +2049,9 @@ $system = getSystemName($conn)[1];
                 api.selector("#total_payable").textContent = "₦0";
                 api.selector("#monthly_payment").textContent = "₦0";
                 api.selector("#due_date").textContent = "---";
+
+                //write response to clib board here
+                //...
             }
 
 
@@ -2245,13 +2245,14 @@ loan_reason
             let total = amount + interest;
             let monthly = total / duration;
 
-            console.log(window.memberbalance);
+          
+
             if(!window.memberbalance){
                 window.showToast('Unable to get member balance data, refresh page and try again', 5000, 'error');
                 return;
             }
 
-            if(total > window.memberbalance.loan_limit){
+            if(amount > window.memberbalance.loan_limit){
                 window.showToast(`Loan request exceeds your maximum loan limit of ₦${window.memberbalance.loan_limit}`, 5000, 'error');
                 return;
             }

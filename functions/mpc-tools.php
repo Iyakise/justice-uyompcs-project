@@ -1840,6 +1840,10 @@ moreInfo.forEach(button => {
                         <p><strong>Last Transaction:</strong> ${lstTransaction} on ${req?.special_savings?.date_time}</p>
                     </div>
 
+                    <div class="loan-actions p-2">
+                        <textarea class="form-group form-control m_approved_msg" placeholder="Enter Rejection/Approved Message here"></textarea>
+                    </div>
+
                     <div class="loan-actions">
                         <button class="reject-btn" data-trk-id="${req.data.tracking_code}" ${req.data.status == 'pending' ? '' : 'disabled'} id="reject-loan-btn">Reject</button>
                         <button class="approve-btn" data-trk-id="${req.data.tracking_code}" ${req.data.status == 'pending' ? '' : 'disabled'} id="approve-loan-btn">Approve</button>
@@ -1983,17 +1987,34 @@ moreInfo.forEach(button => {
             approveBtn.addEventListener('click', async function(){
                 let trkId = this.getAttribute('data-trk-id');
                 let asside = "<?php echo $fn . ' ' . $ln?>";
+                let msg    = selector('.m_approved_msg');
                 this.disabled = true;
                 selector('.reject-btn').disabled = true;
                 this.textContent = 'Processing...';
 
-                let Approved = await approveLoanRequest(trkId, asside);
+                if(msg?.value.length < 15){
+                    showToast('Enter reasonable Approved message');
+                    this.disabled = false;
+                    selector('.reject-btn').disabled = false;
+                    this.textContent = 'Approve';
+                    return;
+                }
 
+                let Approved = await approveLoanRequest(trkId, asside, msg?.value);
+                console.log(Approved);
+                
                     if(Approved.status){
                         showToast(Approved.message);
                         selector('.closeData').click();
+                        setTimeout(()=> {
+                            window.location.reload(true);
+                        }, 2000)
+
                     }else{
                         showToast(Approved.message);
+                        this.disabled = false;
+                        selector('.reject-btn').disabled = false;
+                        this.textContent = 'Approve';
                     }
 
                     // 
@@ -2004,16 +2025,36 @@ moreInfo.forEach(button => {
         selector('.reject-btn').addEventListener('click', function(){
 
             let trkId = this.getAttribute('data-trk-id');
+            let rejectMsg = selector('.m_approved_msg')
             let asside = "<?php echo $fn . ' ' . $ln?>";
             this.disabled = true;
             selector('.approve-btn').disabled = true;
             this.textContent = 'Processing...';
 
+            if(rejectMsg?.value.length < 10){
+                showToast('Enter reasonable Response', 'error');
+                this.textContent = 'Reject';
+                this.disabled = false;
+                selector('.approve-btn').disabled = false;
+                return;
+            }
+
+            if(rejectMsg?.value === ''){
+                showToast('Rejection Response should not be empty', 'error');
+                selector('.approve-btn').disabled = false;
+                this.textContent = 'Reject';
+                this.disabled = false;
+                return;
+            }
+
             //reject loan request function here
-            rejectLoanRequest(trkId, asside).then(response => {
+            rejectLoanRequest(trkId, asside, rejectMsg?.value).then(response => {
                 if(response.status){
-                    showToast(response.message);
-                    selector('.closeData').click();
+                    showToast(response.message, 'success');
+                    selector('.closeData').click(); 
+                    setTimeout(() => {
+                        location.reload(true);
+                    }, 2000)
                 }else{
                     showToast(response.message);
                 }

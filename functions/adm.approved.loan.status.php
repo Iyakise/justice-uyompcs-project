@@ -7,8 +7,9 @@ $response = [];
 
 $tracking_code = $input['tracking_code'] ?? null;
 $approved_by   = $input['approved_by'] ?? null;
+$msg   = $input['approved_msg'] ?? null;
 
-if (!$tracking_code || !$approved_by) {
+if (!$tracking_code || !$approved_by || !$msg) {
     echo json_encode([
         "status" => false,
         "message" => "tracking_code and approved_by are required"
@@ -118,9 +119,9 @@ if ($res_n->num_rows > 0) {
     /***********************************************
      * UPDATE NORMAL LOAN
      ***********************************************/
-    $update = "UPDATE mpc_loans SET status='approved', approved_by=?, updated_at=NOW() WHERE id=?";
+    $update = "UPDATE mpc_loans SET status='approved', approved_by=?, message=?, updated_at=NOW() WHERE id=?";
     $stmt_u = $conn->prepare($update);
-    $stmt_u->bind_param("si", $approved_by, $loan['id']);
+    $stmt_u->bind_param("ssi", $approved_by, $msg, $loan['id']);
     $stmt_u->execute();
 
     echo json_encode([

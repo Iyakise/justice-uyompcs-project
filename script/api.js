@@ -793,10 +793,11 @@ export async function getSingleLoanRequest(tracking_code){
 
 
 //send loan approval request
-export async function approveLoanRequest(tracking_code, approved_by){
+export async function approveLoanRequest(tracking_code, approved_by, msg){
     const data = {
         tracking_code: tracking_code,
-        approved_by: approved_by
+        approved_by: approved_by,
+        approved_msg: msg
     };  
     try {
         const req = await fetch(`${__mpc_uri__()}functions/adm.approved.loan.status.php`, {
@@ -807,6 +808,7 @@ export async function approveLoanRequest(tracking_code, approved_by){
             body: JSON.stringify(data)
         });
 
+console.log(req);
         if (!req.ok) {
             const text = await req.text();
             throw new Error(`Error: Server responded with ${text}`);
@@ -822,10 +824,11 @@ export async function approveLoanRequest(tracking_code, approved_by){
 
 
 //send loan approval request
-export async function rejectLoanRequest(tracking_code, approved_by){
+export async function rejectLoanRequest(tracking_code, approved_by, rejectmsg){
     const data = {
         tracking_code: tracking_code,
         approved_by: approved_by,
+        reject_message: rejectmsg
     };  
     try {
         const req = await fetch(`${__mpc_uri__()}functions/reject.loan.request.php`, {
